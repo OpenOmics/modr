@@ -3,6 +3,6 @@
 
     },
     "conda":{
-
+        "modr": "workflow/envs/modr.yaml"
     }
 }

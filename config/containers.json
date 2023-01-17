@@ -1,5 +1,5 @@
 {
     "images": {
-
+        "modr": "docker://skchronicles/nanite:v0.1.0"
     }
 }

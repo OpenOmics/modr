@@ -44,8 +44,21 @@ if use_conda:
 # Rule DAG built from listed here 
 rule all:
     input:
-        []
+        # Merge samples with multiple barcodes,
+        # @imported from `rule setup` in rules/trim.smk 
+        expand(
+            join(workpath, "{name}", "fastqs", "{name}.fastq.gz"), 
+            name=samples
+        ),
+        # Base-calling quality filtering,
+        # @imported from `rule nanofilt` in rules/trim.smk 
+        expand(
+            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+            name=samples
+        )
 
 
 # Import rules 
 include: join("rules", "common.smk")
+include: join("rules", "trim.smk")
+include: join("rules", "map.smk")
