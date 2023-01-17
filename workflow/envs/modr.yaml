@@ -1,0 +1,10 @@
+name: modr
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+dependencies:
+ - nanofilt=2.8.0
+ - nanoplot=1.38.1
+ - minimap2=2.24
