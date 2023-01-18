@@ -8,3 +8,5 @@ dependencies:
  - nanofilt=2.8.0
  - nanoplot=1.38.1
  - minimap2=2.24
+ - fastqc=0.11.9
+ - nanoplot=1.41.0
