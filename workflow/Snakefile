@@ -39,6 +39,13 @@ if use_conda:
     # are mutually exclusive 
     use_singularity = False
 
+# Read in resource information,
+# containing information about 
+# threads, mem, walltimes, etc.
+# TODO: Add handler for when the
+# mode is set to local.
+with open(join('config', 'cluster.json')) as fh:
+    cluster = json.load(fh)
 
 # Final output files of the pipeline,
 # Rule DAG built from listed here 
@@ -55,10 +62,22 @@ rule all:
         expand(
             join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
             name=samples
+        ),
+        # FastQC report on raw data
+        # @imported from `rule fastqc_raw` in rules/qc.smk
+        expand(
+            join(workpath, "{name}", "fastqc", "{name}_fastqc.html"),
+            name=samples
+        ),
+        # FastQC report on quality filtered data
+        # @imported from `rule fastqc_filtered` in rules/qc.smk
+        expand(
+            join(workpath, "{name}", "fastqc", "{name}.filtered_fastqc.html"),
+            name=samples
         )
-
 
 # Import rules 
 include: join("rules", "common.smk")
 include: join("rules", "trim.smk")
+include: join("rules", "qc.smk")
 include: join("rules", "map.smk")
