@@ -2,7 +2,7 @@
    
   <h1>modr 🔬</h1>
   
-  **_RNA modification Pipeline for ONT direct RNA-sequencing_**
+  **_An Oxford Nanopore RNA modification Pipeline_**
 
   [![tests](https://github.com/OpenOmics/modr/workflows/tests/badge.svg)](https://github.com/OpenOmics/modr/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/modr/workflows/docs/badge.svg)](https://github.com/OpenOmics/modr/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/modr?color=brightgreen)](https://github.com/OpenOmics/modr/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/modr)](https://github.com/OpenOmics/modr/blob/main/LICENSE) 
   
