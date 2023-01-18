@@ -5,5 +5,9 @@
         "partition": "norm",
         "gres": "lscratch:32",
         "time": "0-04:00:00"
+    },
+    "fastqc": {
+        "threads": "8",
+        "mem": "16g"
     }
 }

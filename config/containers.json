@@ -1,5 +1,7 @@
 {
     "images": {
-        "modr": "docker://skchronicles/nanite:v0.1.0"
+        "fastqc": "docker://nciccbr/ccbr_fastqc_0.11.9:v1.1",
+        "modr": "docker://skchronicles/nanite:v0.1.0",
+        "nanoplot": "docker://staphb/nanoplot:1.33.0"
     }
 }
