@@ -9,5 +9,9 @@
     "fastqc": {
         "threads": "8",
         "mem": "16g"
+    },
+    "minimap2": {
+        "threads": "4",
+        "mem": "16g"
     }
 }

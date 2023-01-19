@@ -16,6 +16,23 @@ configfile: 'config.json'                      # Generated from user input and c
 workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
 samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` together
+genome = 'hg38_41'                             # TODO: add cli option to choose a ref 
+
+# Build targets for ref genome 
+# download step from GENCODE,
+# files are gzipped; however
+# final targets are not
+resolve_ref = lambda f: f.split('/')[-1].rstrip('.gz') \
+    if f.startswith('http') else f
+ref_genome = resolve_ref(  
+    config['references'][genome]['GENOME_FA']
+) # Genomic FASTA file
+ref_transcripts = resolve_ref(
+    config['references'][genome]['TRANSCRIPTS_FA']
+) # Transcriptomic FASTA file
+ref_gtf = resolve_ref(
+    config['references'][genome]['GTF_FILE']
+) # GTF File
 
 # Find list of sample which 
 # have mulitple barcodes, this 
@@ -51,6 +68,12 @@ with open(join('config', 'cluster.json')) as fh:
 # Rule DAG built from listed here 
 rule all:
     input:
+        # Download reference files from GENOCDE,
+        # PRI GENOMIC FA, TRANSCRIPTS FA, PRI GTF
+        # @imported from `rules download_*` in rules/download.smk
+        join(workpath, "refs", ref_genome),
+        join(workpath, "refs", ref_transcripts),
+        join(workpath, "refs", ref_gtf),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
@@ -74,10 +97,22 @@ rule all:
         expand(
             join(workpath, "{name}", "fastqc", "{name}.filtered_fastqc.html"),
             name=samples
-        )
+        ),
+        # Align to genome and transcriptome
+        # @imported from `rules minimap2_*` in rules/map.smk
+        expand(
+            join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
+            name=samples
+        ),
+        expand(
+            join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam"),
+            name=samples
+        ),
+    
 
 # Import rules 
 include: join("rules", "common.smk")
+include: join("rules", "download.smk")
 include: join("rules", "trim.smk")
 include: join("rules", "qc.smk")
 include: join("rules", "map.smk")
