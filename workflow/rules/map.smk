@@ -33,6 +33,7 @@ rule minimap2_genome:
             -k14 \\
             {input.ref} \\
             {input.fq} \\
+        | samtools view  -Sb - \\
         | samtools sort -@{threads} \\
             -O bam \\
             --write-index \\
@@ -76,6 +77,7 @@ rule minimap2_transcriptome:
             -k14 \\
             {input.ref} \\
             {input.fq} \\
+        | samtools view  -Sb - \\
         | samtools sort -@{threads} \\
             -O bam \\
             --write-index \\
