@@ -21,9 +21,10 @@ rule download_genome:
         """
         # Download primary assembly,
         # reference genome sequence
-        wget {params.uri}
-        gzip -d {output.genome}.gz
-        rm {output.genome}.gz
+        wget -O - \\
+            {params.uri} \\
+        | gzip -d \\
+        > {output.genome}
         """
 
 
@@ -48,9 +49,10 @@ rule download_transcriptome:
     shell: 
         """
         # Download transcript sequences
-        wget {params.uri}
-        gzip -d {output.transcripts}.gz
-        rm {output.transcripts}.gz
+        wget -O - \\
+            {params.uri} \\
+        | gzip -d \\
+        > {output.transcripts}
         """
 
 
@@ -75,7 +77,8 @@ rule download_gtf:
     shell: 
         """
         # Download PRI gene annotation
-        wget {params.uri}
-        gzip -d {output.gtf}.gz
-        rm {output.gtf}.gz
+        wget -O - \\
+            {params.uri} \\
+        | gzip -d \\
+        > {output.gtf}
         """
