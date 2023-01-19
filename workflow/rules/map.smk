@@ -56,7 +56,7 @@ rule minimap2_transcriptome:
     """
     input:
         fq  = join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
-        ref = join(workpath, "refs", ref_genome),
+        ref = join(workpath, "refs", ref_transcripts),
     output:
         bam = join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam"),
         bai = join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam.bai"),
