@@ -6,12 +6,22 @@
         "gres": "lscratch:32",
         "time": "0-04:00:00"
     },
-    "fastqc": {
+    "fastqc_raw": {
         "threads": "8",
         "mem": "16g"
     },
-    "minimap2": {
-        "threads": "4",
+    "fastqc_filtered": {
+        "threads": "8",
         "mem": "16g"
+    },
+    "minimap2_genome": {
+        "threads": "4",
+        "mem": "32g",
+        "time": "0-08:00:00"
+    },
+    "minimap2_transcriptome": {
+        "threads": "4",
+        "mem": "32g",
+        "time": "0-08:00:00"
     }
 }
