@@ -21,7 +21,7 @@ rule minimap2_genome:
         rname = 'minimap2',
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
-    threads: int(allocated("threads", "minimap2", cluster)) 
+    threads: int(allocated("threads", "minimap2_genome", cluster)) 
     shell: 
         """
         # Align against reference genome,
@@ -65,7 +65,7 @@ rule minimap2_transcriptome:
         rname = 'minimap2',
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
-    threads: int(allocated("threads", "minimap2", cluster)) 
+    threads: int(allocated("threads", "minimap2_transcriptome", cluster)) 
     shell: 
         """
         # Align against reference genome,

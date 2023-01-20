@@ -17,6 +17,7 @@ rule download_genome:
         uri = config['references'][genome]['GENOME_FA'],
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "download_genome", cluster))
     shell: 
         """
         # Download primary assembly,
@@ -46,6 +47,7 @@ rule download_transcriptome:
         uri = config['references'][genome]['TRANSCRIPTS_FA'],
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "download_transcriptome", cluster))
     shell: 
         """
         # Download transcript sequences
@@ -74,6 +76,7 @@ rule download_gtf:
         uri = config['references'][genome]['GTF_FILE'],
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "download_gtf", cluster))
     shell: 
         """
         # Download PRI gene annotation

@@ -51,6 +51,7 @@ rule setup:
             else "",
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "setup", cluster))
     shell: 
         """
         {params.prefix} {input.fq} {params.suffix} {output.fq}
@@ -74,6 +75,7 @@ rule nanofilt:
         qual_filt=quality_filter,
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "nanofilt", cluster))
     shell: 
         """
         # Nanofilt requires uncompressed input

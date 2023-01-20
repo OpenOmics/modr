@@ -17,7 +17,7 @@ rule fastqc_raw:
         outdir = join(workpath, "{name}", "fastqc"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['fastqc'], use_singularity)
-    threads: int(allocated("threads", "fastqc", cluster))
+    threads: int(allocated("threads", "fastqc_raw", cluster))
     shell: """
     fastqc \\
         -t {threads} \\
@@ -44,7 +44,7 @@ rule fastqc_filtered:
         outdir = join(workpath, "{name}", "fastqc"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['fastqc'], use_singularity)
-    threads: int(allocated("threads", "fastqc", cluster))
+    threads: int(allocated("threads", "fastqc_filtered", cluster))
     shell: """
     fastqc \\
         -t {threads} \\
