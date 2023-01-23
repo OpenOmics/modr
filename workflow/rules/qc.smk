@@ -1,4 +1,5 @@
 # Quality-control rules
+# Pre-alignment quality control
 rule fastqc_raw:
     """
     Quality-control step to assess sequencing quality of raw data.
@@ -50,4 +51,32 @@ rule fastqc_filtered:
         -t {threads} \\
         -o {params.outdir} \\
         {input.fq}
+    """
+
+
+# Post-alignment quality control
+rule nanoplot:
+    """
+    Quality-control step to visualize QC information.
+    Github: https://github.com/wdecoster/NanoPlot
+    @Input:
+        Sorted Genomic BAM file (scatter)
+    @Output:
+        Nanoplot html report and various QC plots
+    """
+    input:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
+    output:
+        html = join(workpath, "{name}", "nanoplot", "NanoPlot-report.html"),
+    params:
+        rname  = "nanoplot", 
+        outdir = join(workpath, "{name}", "nanoplot"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "nanoplot", cluster))
+    shell: """
+    Nanoplot \\
+        -t {threads} \\
+        --bam {input.bam} \\
+        -o {params.outdir}
     """

@@ -23,5 +23,9 @@
         "threads": "4",
         "mem": "32g",
         "time": "0-08:00:00"
+    },
+    "nanoplot": {
+        "threads": "4",
+        "mem": "16g"
     }
 }

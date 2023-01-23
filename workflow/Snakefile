@@ -108,7 +108,12 @@ rule all:
             join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam"),
             name=samples
         ),
-    
+        # Nanoplot to visualize alignment QC
+        # @imported from `rule nanoplot` in rules/qc.smk
+        expand(
+            join(workpath, "{name}", "nanoplot", "NanoPlot-report.html"),
+            name=samples
+        ),
 
 # Import rules 
 include: join("rules", "common.smk")
