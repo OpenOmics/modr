@@ -89,6 +89,7 @@ rule minimap2_transcriptome:
         # conversion of U to T bps
         minimap2 \\
             -ax splice \\
+            -N 10 \\
             -uf \\
             -k14 \\
             {input.ref} \\
