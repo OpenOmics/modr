@@ -18,12 +18,20 @@ rule minimap2_genome:
         flagstat = join(workpath, "{name}", "bams", "{name}.sorted.genome.flagstats"),
         stats    = join(workpath, "{name}", "bams", "{name}.sorted.genome.stats"),
     params:
-        rname = 'minimap2',
+        rname  = 'minimap2',
+        tmpdir = join(workpath, "{name}", "bams", "genome_tmp"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "minimap2_genome", cluster)) 
     shell: 
         """
+        # Setups temporary directory for
+        # intermediate files with built-in 
+        # mechanism for deletion on exit
+        if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+        tmp=$(mktemp -d -p "{params.tmpdir}")
+        trap 'rm -rf "${{tmp}}"' EXIT
+        
         # Align against reference genome,
         # minimap2 automatically handles
         # conversion of U to T bps 
@@ -33,8 +41,8 @@ rule minimap2_genome:
             -k14 \\
             {input.ref} \\
             {input.fq} \\
-        | samtools view  -Sb - \\
         | samtools sort -@{threads} \\
+            -T "${{tmp}}" \\
             -O bam \\
             --write-index \\
             -o {output.bam}##idx##{output.bai} \\
@@ -63,11 +71,19 @@ rule minimap2_transcriptome:
         bai = join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam.bai"),
     params:
         rname = 'minimap2',
+        tmpdir = join(workpath, "{name}", "bams", "transcriptome_tmp"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "minimap2_transcriptome", cluster)) 
     shell: 
         """
+        # Setups temporary directory for
+        # intermediate files with built-in 
+        # mechanism for deletion on exit
+        if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+        tmp=$(mktemp -d -p "{params.tmpdir}")
+        trap 'rm -rf "${{tmp}}"' EXIT
+
         # Align against reference genome,
         # minimap2 automatically handles
         # conversion of U to T bps
@@ -77,8 +93,8 @@ rule minimap2_transcriptome:
             -k14 \\
             {input.ref} \\
             {input.fq} \\
-        | samtools view  -Sb - \\
         | samtools sort -@{threads} \\
+            -T "${{tmp}}" \\
             -O bam \\
             --write-index \\
             -o {output.bam}##idx##{output.bai} \\
