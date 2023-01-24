@@ -17,6 +17,7 @@ rule minimap2_genome:
         bai = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam.bai"),
         flagstat = join(workpath, "{name}", "bams", "{name}.sorted.genome.flagstats"),
         stats    = join(workpath, "{name}", "bams", "{name}.sorted.genome.stats"),
+        idx      = join(workpath, "{name}", "bams", "{name}.sorted.genome.idxstats"),
     params:
         rname  = 'minimap2',
         tmpdir = join(workpath, "{name}", "bams", "genome_tmp"),
@@ -49,6 +50,7 @@ rule minimap2_genome:
             -
         
         # Gather BAM statistics
+        samtools idxstats {output.bam} > {output.idx}
         samtools flagstat {output.bam} > {output.flagstat}
         samtools stats {output.bam} > {output.stats}
         """
