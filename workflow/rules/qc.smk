@@ -72,7 +72,7 @@ rule nanoplot:
         rname  = "nanoplot", 
         outdir = join(workpath, "{name}", "nanoplot"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['modr'], use_singularity)
+    container: depending(config['images']['nanoplot'], use_singularity)
     threads: int(allocated("threads", "nanoplot", cluster))
     shell: """
     Nanoplot \\
@@ -104,7 +104,7 @@ rule multiqc:
         outdir = join(workpath, "reports"),
         wdir   = join(workpath),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['modr'], use_singularity)
+    container: depending(config['images']['multiqc'], use_singularity)
     threads: int(allocated("threads", "mulitqc", cluster))
     shell: """
     multiqc \\
