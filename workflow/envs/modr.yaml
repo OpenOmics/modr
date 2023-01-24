@@ -12,4 +12,5 @@ dependencies:
  - fastqc=0.11.9
  - nanoplot=1.41.0
  - samtools=1.13
+ - multiqc=1.12
  - wget
