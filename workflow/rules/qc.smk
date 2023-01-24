@@ -80,3 +80,37 @@ rule nanoplot:
         --bam {input.bam} \\
         -o {params.outdir}
     """
+
+
+rule multiqc:
+    """
+    Reporting step to aggregate QC information across
+    all supported tools.
+    Docs: https://multiqc.info/
+    @Input:
+        FastQC html reports (gather)
+
+    @Output:
+        MulitQC html report
+    """
+    input:
+        expand(join(workpath, "{name}", "fastqc", "{name}_fastqc.zip"), name=samples),
+        expand(join(workpath, "{name}", "fastqc", "{name}.filtered_fastqc.zip"), name=samples),
+        expand(join(workpath, "{name}", "bams", "{name}.sorted.genome.stats"), name=samples),
+    output:
+        html = join(workpath, "reports", "multiqc_report.html"),
+    params:
+        rname  = "multiqc", 
+        outdir = join(workpath, "reports"),
+        wdir   = join(workpath),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "mulitqc", cluster))
+    shell: """
+    multiqc \\
+        --ignore '*/.singularity/*' \\
+        -f \\
+        --interactive \\
+        --outdir {params.outdir} \\
+        {params.wdir}
+    """

@@ -114,6 +114,10 @@ rule all:
             join(workpath, "{name}", "nanoplot", "NanoPlot-report.html"),
             name=samples
         ),
+        # MultiQC to aggregate results into a report
+        # @imported from `rule multiqc` in rules/qc.smk
+        join(workpath, "reports", "multiqc_report.html"),
+
 
 # Import rules 
 include: join("rules", "common.smk")
