@@ -101,8 +101,9 @@ rule multiqc:
         html = join(workpath, "reports", "multiqc_report.html"),
     params:
         rname  = "multiqc", 
-        outdir = join(workpath, "reports"),
         wdir   = join(workpath),
+        outdir = join(workpath, "reports"),
+        conf   = join(workpath, "resources", "multiqc_config.yaml"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['multiqc'], use_singularity)
     threads: int(allocated("threads", "mulitqc", cluster))
@@ -110,6 +111,7 @@ rule multiqc:
     multiqc \\
         --ignore '*/.singularity/*' \\
         -f \\
+        -c {params.conf} \\
         --interactive \\
         --outdir {params.outdir} \\
         {params.wdir}
