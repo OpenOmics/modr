@@ -75,7 +75,7 @@ rule nanoplot:
     container: depending(config['images']['nanoplot'], use_singularity)
     threads: int(allocated("threads", "nanoplot", cluster))
     shell: """
-    Nanoplot \\
+    NanoPlot \\
         -t {threads} \\
         --bam {input.bam} \\
         -o {params.outdir}
