@@ -120,6 +120,12 @@ rule all:
             join(workpath, "{name}", "bams", "{name}.sorted.genome.metrics"),
             name=samples
         ),
+        # NanoCount to quantify isoform counts
+        # @imported from `rule nanocount` in rules/quant.smk
+        expand(
+            join(workpath, "{name}", "counts", "{name}.nanocount.transcripts.tsv"),
+            name=samples
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),
@@ -131,3 +137,4 @@ include: join("rules", "download.smk")
 include: join("rules", "trim.smk")
 include: join("rules", "qc.smk")
 include: join("rules", "map.smk")
+include: join("rules", "quant.smk")

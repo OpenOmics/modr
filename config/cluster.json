@@ -31,5 +31,9 @@
     "nanostat": {
         "threads": "4",
         "mem": "16g"
+    },
+    "nanocount": {
+        "threads": "2",
+        "mem": "16g"
     }
 }
