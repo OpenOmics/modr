@@ -35,5 +35,9 @@
     "nanocount": {
         "threads": "2",
         "mem": "16g"
+    },
+    "stranded_bigwigs": {
+        "threads": "2",
+        "mem": "16g"
     }
 }

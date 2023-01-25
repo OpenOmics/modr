@@ -108,6 +108,13 @@ rule all:
             join(workpath, "{name}", "bams", "{name}.sorted.transcriptome.bam"),
             name=samples
         ),
+        # Normalized (TPM) BigWig tracks
+        # for the fwd and rev strand 
+        # @imported from `rules stranded_bigwigs` in rules/map.smk
+        expand(
+            join(workpath, "{name}", "bigwigs", "{name}.tpm.fwd.bw"),
+            name=samples
+        ),
         # Nanoplot to visualize alignment QC
         # @imported from `rule nanoplot` in rules/qc.smk
         expand(

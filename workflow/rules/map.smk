@@ -103,3 +103,43 @@ rule minimap2_transcriptome:
             -o {output.bam}##idx##{output.bai} \\
             -
         """
+
+
+rule stranded_bigwigs:
+    """
+    Data-processing step to create stranded bigWigs tracks for IGV.
+    Using deeptools: https://deeptools.readthedocs.io/en/develop/content/tools/bamCoverage.html
+    @Input:
+        Genomic BAM file (scatter),
+    @Output:
+        Normalized (TPM) BigWig of fwd strand,
+        Normalized (TPM) BigWig of rev strand 
+    """
+    input:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
+    output:
+        fwd = join(workpath, "{name}", "bigwigs", "{name}.tpm.fwd.bw"),
+        rev = join(workpath, "{name}", "bigwigs", "{name}.tpm.rev.bw"),
+    params:
+        rname = 'bigwigs',
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "stranded_bigwigs", cluster)) 
+    shell: 
+        """
+        # TPM normalized BigWig
+        # of the forward strand
+        bamCoverage \\
+            -b {input.bam} \\
+            -o {output.fwd} \\
+            --samFlagExclude 16 \\
+            --normalizeUsing BPM
+
+        # TPM normalized BigWig
+        # of the reverse strand
+        bamCoverage \\
+            -b {input.bam} \\
+            -o {output.rev} \\
+            --samFlagInclude 16 \\
+            --normalizeUsing BPM
+        """
