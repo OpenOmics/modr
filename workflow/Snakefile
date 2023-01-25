@@ -114,6 +114,12 @@ rule all:
             join(workpath, "{name}", "nanoplot", "NanoPlot-report.html"),
             name=samples
         ),
+        # NanoStat to gather BAM statistics
+        # @imported from `rule nanostat` in rules/qc.smk
+        expand(
+            join(workpath, "{name}", "bams", "{name}.sorted.genome.metrics"),
+            name=samples
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),

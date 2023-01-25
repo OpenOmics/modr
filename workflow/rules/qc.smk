@@ -82,6 +82,33 @@ rule nanoplot:
     """
 
 
+rule nanostat:
+    """
+    Quality-control step to gather various statistics from a BAM file.
+    This tool is supported by MultiQC.
+    Github: https://github.com/wdecoster/nanostat
+    @Input:
+        Sorted Genomic BAM file (scatter)
+    @Output:
+        NanoStat metrics file
+    """
+    input:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
+    output:
+        metrics = join(workpath, "{name}", "bams", "{name}.sorted.genome.metrics"),
+    params:
+        rname  = "nanostat",
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "nanostat", cluster))
+    shell: """
+    NanoStat \\
+        -t {threads} \\
+        --bam {input.bam} \\
+    > {output.metrics}
+    """
+
+
 rule multiqc:
     """
     Reporting step to aggregate QC information across
@@ -97,6 +124,7 @@ rule multiqc:
         expand(join(workpath, "{name}", "fastqc", "{name}_fastqc.zip"), name=samples),
         expand(join(workpath, "{name}", "fastqc", "{name}.filtered_fastqc.zip"), name=samples),
         expand(join(workpath, "{name}", "bams", "{name}.sorted.genome.stats"), name=samples),
+        expand(join(workpath, "{name}", "bams", "{name}.sorted.genome.metrics"), name=samples),
     output:
         html = join(workpath, "reports", "multiqc_report.html"),
     params:

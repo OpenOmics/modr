@@ -27,5 +27,9 @@
     "nanoplot": {
         "threads": "4",
         "mem": "16g"
+    },
+    "nanostat": {
+        "threads": "4",
+        "mem": "16g"
     }
 }
