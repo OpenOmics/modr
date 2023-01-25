@@ -11,7 +11,7 @@ FROM ubuntu:22.04
 #  - nanoplot             # from pypi, installed: 1.41.0
 #  - nanocount            # from pypi, installed: 1.0.0.post6
 #  - nanostat             # from pypi, installed: 1.6.0
-#  - pycoQC               # from pypi, installed: 2.5.2
+#  - deeptools            # from pypi, installed: 3.5.1
 #  - fastqc/0.11.9        # apt-get, installed: 0.11.9
 #  - multiqc/1.14         # from pypi, installed: 1.14
 LABEL maintainer="Skyler Kuhn <kuhnsa@nih.gov>" \
@@ -79,7 +79,7 @@ RUN pip3 install --upgrade pip \
     && pip3 install NanoPlot==1.41.0 \
     && pip3 install NanoCount==1.0.0.post6 \
     && pip3 install NanoStat==1.6.0 \
-    && pip3 install pycoQC==2.5.2 \
+    && pip3 install deeptools==3.5.1 \
     && pip3 install multiqc==1.14
 
 ############### INSTALL ################
