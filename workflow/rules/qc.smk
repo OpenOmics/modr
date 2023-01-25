@@ -17,7 +17,7 @@ rule fastqc_raw:
         rname  = "rawfqc", 
         outdir = join(workpath, "{name}", "fastqc"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['fastqc'], use_singularity)
+    container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "fastqc_raw", cluster))
     shell: """
     fastqc \\
@@ -44,7 +44,7 @@ rule fastqc_filtered:
         rname  = "filtfqc", 
         outdir = join(workpath, "{name}", "fastqc"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['fastqc'], use_singularity)
+    container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "fastqc_filtered", cluster))
     shell: """
     fastqc \\
@@ -72,7 +72,7 @@ rule nanoplot:
         rname  = "nanoplot", 
         outdir = join(workpath, "{name}", "nanoplot"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['nanoplot'], use_singularity)
+    container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "nanoplot", cluster))
     shell: """
     NanoPlot \\
@@ -105,7 +105,7 @@ rule multiqc:
         outdir = join(workpath, "reports"),
         conf   = join(workpath, "resources", "multiqc_config.yaml"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['multiqc'], use_singularity)
+    container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "mulitqc", cluster))
     shell: """
     multiqc \\
