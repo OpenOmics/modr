@@ -5,7 +5,7 @@ The `modr` executable is composed of several inter-related sub commands. Please 
 
 This part of the documentation describes options and concepts for <code>modr <b>run</b></code> sub command in more detail. With minimal configuration, the **`run`** sub command enables you to start running modr pipeline. 
 
-Setting up the modr pipeline is fast and easy! In its most basic form, <code>modr <b>run</b></code> only has *two required inputs*.
+Setting up the modr pipeline is fast and easy! In its most basic form, <code>modr <b>run</b></code> only has *three required inputs*.
 
 ## 2. Synopsis
 ```text
@@ -15,13 +15,14 @@ $ modr run [--help] \
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \
       [--quality-filter QUALITY_FILTER] \
+      --genome {hg38_41, mm10_M25, mm39_M31} \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument and an output directory to store results via `--output` argument.
+A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a reference genome via the `--genome` argument.
 
 Use you can always use the `-h` option for information on a specific command. 
 
@@ -45,6 +46,14 @@ Each of the following arguments are required. Failure to provide a required argu
 > This location is where the pipeline will create all of its output files, also known as the pipeline's working directory. If the provided output directory does not exist, it will be created automatically.
 > 
 > ***Example:*** `--output /data/$USER/modr_out`
+
+---  
+  `--genome {hg38_41, mm10_M25, mm39_M31}`
+> **Reference genome.**   
+> *type: string*
+>   
+> This option defines the reference genome of the samples. modr does comes bundled with pre-built reference files from GENCODE for human and mouse samples. Please select from one of the following options: `hg38_41`, `mm10_M25`, `mm39_M31`. Please note that `hg38_41` is a human reference genome, while `mm10_M25` and `mm39_M31` are two different reference genomes available for mouse.
+> ***Example:*** `Example: --genome hg38_41`
 
 ### 2.2 Analysis options
 
@@ -184,15 +193,17 @@ module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
 ./modr run --input .tests/*.fastq.gz \
-             --output /data/$USER/output \
-             --mode slurm \
-             --dry-run
+           --output /data/$USER/output \
+           --genome hg38_41 \
+           --mode slurm \
+           --dry-run
 
 # Step 2B.) Run the modr pipeline
 # The slurm mode will submit jobs to 
 # the cluster. It is recommended running 
 # the pipeline in this mode.
 ./modr run --input .tests/*.fastq.gz \
-             --output /data/$USER/output \
-             --mode slurm
+           --output /data/$USER/output \
+           --genome hg38_41 \
+           --mode slurm
 ```
