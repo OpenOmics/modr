@@ -112,14 +112,14 @@ rule stranded_bigwigs:
     @Input:
         Genomic BAM file (scatter),
     @Output:
-        Normalized (TPM) BigWig of fwd strand,
-        Normalized (TPM) BigWig of rev strand 
+        Normalized (CPM) BigWig of fwd strand,
+        Normalized (CPM) BigWig of rev strand 
     """
     input:
         bam = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
     output:
-        fwd = join(workpath, "{name}", "bigwigs", "{name}.tpm.fwd.bw"),
-        rev = join(workpath, "{name}", "bigwigs", "{name}.tpm.rev.bw"),
+        fwd = join(workpath, "{name}", "bigwigs", "{name}.cpm.fwd.bw"),
+        rev = join(workpath, "{name}", "bigwigs", "{name}.cpm.rev.bw"),
     params:
         rname = 'bigwigs',
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
@@ -127,19 +127,19 @@ rule stranded_bigwigs:
     threads: int(allocated("threads", "stranded_bigwigs", cluster)) 
     shell: 
         """
-        # TPM normalized BigWig
+        # CPM normalized BigWig
         # of the forward strand
         bamCoverage \\
             -b {input.bam} \\
             -o {output.fwd} \\
             --samFlagExclude 16 \\
-            --normalizeUsing BPM
+            --normalizeUsing CPM
 
-        # TPM normalized BigWig
+        # CPM normalized BigWig
         # of the reverse strand
         bamCoverage \\
             -b {input.bam} \\
             -o {output.rev} \\
             --samFlagInclude 16 \\
-            --normalizeUsing BPM
+            --normalizeUsing CPM
         """
