@@ -16,7 +16,7 @@ configfile: 'config.json'                      # Generated from user input and c
 workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
 samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` together
-genome = 'hg38_41'                             # TODO: add cli option to choose a ref 
+genome = config['options']['genome']           # Reference genome of a set of samples
 
 # Build targets for ref genome 
 # download step from GENCODE,

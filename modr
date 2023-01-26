@@ -377,6 +377,7 @@ def parsed_arguments(name, description):
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
                 [--quality-filter QUALITY_FILTER] \\
+                --genome {{hg38_41, mm10_M25, mm39_M31}} \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -401,6 +402,15 @@ def parsed_arguments(name, description):
                                 provided working directory has not been initialized,
                                 it will be created automatically.
                                   Example: --output /data/$USER/output
+        
+          --genome GENOME       Reference genome. This option defines the reference
+                                genome of the samples. {2} does comes bundled with
+                                prebuilt reference files from GENCODE for human and 
+                                mouse samples. Select one of the following options:
+                                    • hg38_41
+                                    • mm10_M25
+                                    • mm39_M31
+                                  Example: --genome hg38_41
 
         {3}{4}Analysis options:{5}
           --quality-filter QUALITY_FILTER
@@ -510,6 +520,7 @@ def parsed_arguments(name, description):
           # Step 2A.) Dry-run the pipeline
           ./{0} run --input .tests/*.fastq.gz \\
                     --output /data/$USER/output \\
+                    --genome hg38_41 \\
                     --mode slurm \\
                     --dry-run
 
@@ -519,6 +530,7 @@ def parsed_arguments(name, description):
           # the pipeline in this mode.
           ./{0} run --input .tests/*.fastq.gz \\
                     --output /data/$USER/output \\
+                    --genome hg38_41 \\
                     --mode slurm
 
         {2}{3}Version:{4}
@@ -552,6 +564,15 @@ def parsed_arguments(name, description):
         '--output',
         type = lambda option: os.path.abspath(os.path.expanduser(option)),
         required = True,
+        help = argparse.SUPPRESS
+    )
+
+    # Reference genome
+    subparser_run.add_argument(
+        '--genome',
+        required = True,
+        type = str,
+        choices = ['hg38_41', 'mm10_M25', 'mm39_M31'],
         help = argparse.SUPPRESS
     )
 
