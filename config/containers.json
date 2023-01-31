@@ -1,5 +1,6 @@
 {
     "images": {
-        "modr": "docker://skchronicles/modr:v0.1.0"
+        "modr": "docker://skchronicles/modr:v0.1.0",
+        "dinopore": "docker://skchronicles/dinopore:v0.1.0"
     }
 }

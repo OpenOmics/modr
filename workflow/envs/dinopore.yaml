@@ -1,0 +1,21 @@
+name: dinopore
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+  - anaconda
+  - hcc
+dependencies:
+  - python=3.8.5 
+  - h5py=2.10.0 
+  - nanopolish=0.11.1 
+  - pillow=8.3.1 
+  - pyyaml=5.4.1
+  - requests=2.26.0 
+  - samtools=1.9 
+  - scipy=1.7.1
+  - graphmap=0.6.3
+  - samtools=1.13
+  - jvarkit-sam2tsv
+  - wget

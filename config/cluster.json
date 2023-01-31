@@ -39,5 +39,15 @@
     "stranded_bigwigs": {
         "threads": "2",
         "mem": "16g"
+    },
+    "dinopore_graphmap2": {
+        "threads": "16",
+        "mem": "180g",
+        "time": "0-18:00:00"
+    },
+    "dinopore_nanopolish": {
+        "threads": "16",
+        "mem": "32g",
+        "time": "1-18:00:00"
     }
 }

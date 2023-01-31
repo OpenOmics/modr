@@ -3,6 +3,7 @@
 
     },
     "conda":{
-        "modr": "workflow/envs/modr.yaml"
+        "modr": "workflow/envs/modr.yaml",
+        "dinopore": "workflow/envs/dinopore.yaml"
     }
 }
