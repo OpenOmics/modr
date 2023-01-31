@@ -18,14 +18,14 @@ jobs:
     - name: Dry Run with test data
       run: |
         docker run -v $PWD:/opt2 snakemake/snakemake:v5.24.2 \
-        /opt2/modr run --input \
+        /bin/bash -c "cd /opt2 && /opt2/modr run --input \
         /opt2/.tests/WT_S1_0.fastq.gz /opt2/.tests/WT_S1_1.fastq.gz \
         /opt2/.tests/WT_S2_0.fastq.gz /opt2/.tests/WT_S2_1.fastq.gz \
         /opt2/.tests/WT_S3_1.fastq.gz /opt2/.tests/WT_S3_2.fastq.gz \
         /opt2/.tests/WT_S3_3.fastq.gz /opt2/.tests/WT_S3_4.fastq.gz \
         /opt2/.tests/WT_S4.fastq.gz /opt2/.tests/WT_S5.fastq.gz \
         --output /opt2/output --genome hg38_41 --groups /opt2/.tests/groups.tsv \
-        --mode local --dry-run
+        --mode local --dry-run"
     - name: View the pipeline config file
       run: |
         echo "Generated config file for pipeline...." && cat $PWD/output/config.json
