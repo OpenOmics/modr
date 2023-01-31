@@ -131,6 +131,70 @@ def run(sub_args):
         resource_bundle = sub_args.resource_bundle
     )
 
+    # Add additionl sample metadata defined 
+    # in groups.tsv to config file. The groups
+    # file contains information to map a given
+    # sample to its fast5 directory and group.
+    col_missing = []
+    with open(sub_args.groups) as fh:
+        # Parse the groups (TSV) file
+        # Column 1: Sample basename (without FastQ ext)
+        # Column 2: sample fast5 path
+        # Column 3: Group name
+        config['fast5'] = {}
+        config['sample2group'] = {}
+        config['groups'] = {}
+        for line in fh:
+            linelist = line.lstrip().rstrip().split('\t')
+            # Parse required columns
+            try:
+                smp= linelist[0]
+                f5 = os.path.abspath(linelist[1])
+                grp = linelist[2]
+            except IndexError:
+                # Collect lines with 
+                # missing required fields 
+                col_missing.append(line.rstrip())
+            # Check if path to samples
+            # fast5 file actually exists
+            if not exists(f5):
+                err(
+                    "Error: sample fast5 path provided in", 
+                    "second column of --groups '{}' file".format(sub_args.groups),
+                    "does not exist!"
+                )
+                fatal('Please provide the correct path and try again!')
+            # Check if sample name matches
+            # with base name that exists from
+            # strippping FastQ file names
+            if smp not in config['barcodes']:
+                err(
+                    "Error: sample base name provided in first", 
+                    "column of --groups '{}' file".format(sub_args.groups),
+                    "does not match any base names that were", 
+                    "generated from the provided FastQ files.",
+                    "\nDid you forget to provide a sample's FastQ file(s)?", 
+                    "Or did you provide the wrong base name?"
+                )
+                fatal(
+                    "Here is a list of base names that were generated",
+                    "from your FastQ files:\n{}".format(list(config['barcodes'].keys())))
+            # Add parsed sample metadata
+            # to the config file 
+            config['fast5'][smp] = f5
+            config['sample2group'][smp] = grp
+            if grp not in config['groups']:
+                config['groups'][grp] = []
+            config['groups'][grp].append(smp)
+        # Report lines with missing info,
+        # user did not provide 3 columns
+        if col_missing:
+            err(
+                "Error: missing required information in --groups '{}' file!".format(sub_args.groups)
+            )
+            err("List of lines containing missing fields:\n{}".format(grp_missing))
+            fatal("Please update your groups file to each of the required fields.")
+
     # Step 3. Resolve docker/singularity bind
     # paths from the config file.
     bindpaths = bind(
@@ -378,6 +442,7 @@ def parsed_arguments(name, description):
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
                 [--quality-filter QUALITY_FILTER] \\
                 --genome {{hg38_41, mm10_M25, mm39_M31}} \\
+                --groups GROUPS \\
                 --input INPUT [INPUT ...] \\
                 --output OUTPUT
 
@@ -386,7 +451,8 @@ def parsed_arguments(name, description):
         {3}{4}Description:{5}
           To run the RNA modification pipeline with your Oxford Nanopore direct RNA-
         sequencing data, please provide a space seperated list of FastQ (globbing is 
-        supported) and an output directory to store results.
+        supported), an output directory to store results, a reference genome, 
+        and a groups file containing additional metadata.
 
         {3}{4}Required arguments:{5}
           --input INPUT [INPUT ...]
@@ -395,6 +461,7 @@ def parsed_arguments(name, description):
                                 FastQ files should be seperated by a space. Globbing 
                                 for multiple files is also supported.
                                   Example: --input .tests/*.fastq.gz
+          
           --output OUTPUT
                                 Path to an output directory. This location is where
                                 the pipeline will create all of its output files, also
@@ -402,7 +469,7 @@ def parsed_arguments(name, description):
                                 provided working directory has not been initialized,
                                 it will be created automatically.
                                   Example: --output /data/$USER/output
-        
+
           --genome GENOME       Reference genome. This option defines the reference
                                 genome of the samples. {2} does comes bundled with
                                 prebuilt reference files from GENCODE for human and 
@@ -411,6 +478,41 @@ def parsed_arguments(name, description):
                                     • mm10_M25
                                     • mm39_M31
                                   Example: --genome hg38_41
+          
+          --groups GROUPS       Groups file. This tab-delimited (TSV) file is used to 
+                                collect additional metadata that is required to run the
+                                pipeline. This file consists of three columns containing 
+                                the names of each sample, the path to the sample's fast5
+                                directory, and the name of a group a sample is assoicated
+                                with. Each of these fields is required! The first column
+                                should contain the base name of a given sample. The base 
+                                name of a given sample can be determined by removing its 
+                                file extension from the sample's FastQ file, for example:
+                                WT_S4.fastq.gz becomes WT_S4 in the groups file. Here is 
+                                an example base name of a multiplexed sample. 
+                                  Given:
+                                    WT_S2_1.fastq.gz, WT_S2_2.fastq.gz, WT_S2_3.fastq.gz
+                                  Base name would be WT_S2.
+                                The second column should contain the path to the sample's
+                                fast5 directory. The fast5 directory contains HDF5 files
+                                which couple sequencing information with raw event signal
+                                from the ONT sequencer. The raw signal information is used 
+                                to infer RNA modifcation. As so, the pipeline needs access 
+                                to both the FastQ files and their fast5 files. The third, 
+                                and last column, contains group information for each sample.
+                                A user can set their own groups. A group can represent any- 
+                                thing from a timepoint, to a experimental condition, to a 
+                                treatment, etc. Please note that groups are composed of 
+                                alphanumeric characters, cannot startwith a number, and 
+                                cannot contain any '-' characters. Groups can contain '_' 
+                                character.
+                                  Contents of example groups file:
+                                    WT_S1	.tests/WT_S1/fast5/	T1
+                                    WT_S2	.tests/WT_S2/fast5/	T1
+                                    WT_S3	.tests/WT_S3/fast5/	T2
+                                    WT_S4	.tests/WT_S4/fast5/	T2
+                                    WT_S5	.tests/WT_S5/fast5/	T2
+                                Example: --groups .tests/groups.tsv
 
         {3}{4}Analysis options:{5}
           --quality-filter QUALITY_FILTER
@@ -521,6 +623,7 @@ def parsed_arguments(name, description):
           ./{0} run --input .tests/*.fastq.gz \\
                     --output /data/$USER/output \\
                     --genome hg38_41 \\
+                    --groups .tests/groups.tsv \\
                     --mode slurm \\
                     --dry-run
 
@@ -531,6 +634,7 @@ def parsed_arguments(name, description):
           ./{0} run --input .tests/*.fastq.gz \\
                     --output /data/$USER/output \\
                     --genome hg38_41 \\
+                    --groups .tests/groups.tsv \\
                     --mode slurm
 
         {2}{3}Version:{4}
@@ -573,6 +677,15 @@ def parsed_arguments(name, description):
         required = True,
         type = str,
         choices = ['hg38_41', 'mm10_M25', 'mm39_M31'],
+        help = argparse.SUPPRESS
+    )
+
+    # Groups TSV file
+    subparser_run.add_argument(
+        '--groups',
+        # Check if the file exists and if it is readable
+        type = lambda file: os.path.abspath(permissions(parser, file, os.R_OK)),
+        required = True,
         help = argparse.SUPPRESS
     )
 
