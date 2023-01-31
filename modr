@@ -159,7 +159,7 @@ def run(sub_args):
             # fast5 file actually exists
             if not exists(f5):
                 err(
-                    "Error: sample fast5 path provided in", 
+                    "Error: sample fast5 path, {}, provided in".format(f5), 
                     "second column of --groups '{}' file".format(sub_args.groups),
                     "does not exist!"
                 )
