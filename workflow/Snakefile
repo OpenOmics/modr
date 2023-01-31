@@ -133,6 +133,11 @@ rule all:
             join(workpath, "{name}", "counts", "{name}.nanocount.transcripts.tsv"),
             name=samples
         ),
+        # DInoPORE I-to-A RNA-editing
+        expand(
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.bam"), 
+            name=samples
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),
@@ -145,3 +150,4 @@ include: join("rules", "trim.smk")
 include: join("rules", "qc.smk")
 include: join("rules", "map.smk")
 include: join("rules", "quant.smk")
+include: join("rules", "editing_a-to-i.smk")
