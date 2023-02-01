@@ -133,9 +133,18 @@ rule all:
             join(workpath, "{name}", "counts", "{name}.nanocount.transcripts.tsv"),
             name=samples
         ),
-        # DInoPORE I-to-A RNA-editing
+        # DInoPORE I-to-A RNA-editing rule
+        # Align to reference genome with Graphmap2
+        # @imported from `rule dinopore_graphmap2` in rules/editing_a-to-i.smk
         expand(
-            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.bam"), 
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sorted.bam"), 
+            name=samples
+        ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Align nanopore event signals to ref k-mers
+        # @imported from `rule dinopore_nanopolish` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.txt"), 
             name=samples
         ),
         # MultiQC to aggregate results into a report
