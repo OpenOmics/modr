@@ -76,9 +76,11 @@ rule dinopore_graphmap2:
         samtools sort -@{threads} \\
             -T "${{tmp}}" \\
             -O bam \\
-            --write-index \\
-            -o {output.bam}##idx##{output.bai} \\
+            -o {output.bam} \\
             {params.sam}
+        samtools index -@{threads} \\
+            {output.bam} \\
+            {output.bai}
         """
 
 
