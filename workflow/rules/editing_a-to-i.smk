@@ -160,3 +160,48 @@ rule dinopore_fadict:
             R={input.ref} \\
             O={output.dct}
         """
+
+
+rule dinopore_sam2tsv:
+    """
+    Data-processing step to convert bam file into tsv file, then process 
+    it to remove (S, H and N), only keeping M (match or mismatch), D (deletion)
+    and I (insertion).
+    @Input:
+        Sorted Graphmap2 Genomic BAM file
+        Genomic FASTA file
+        Sequence Dictionary
+    @Output:
+        Raw Features TSV
+    """
+    input:
+        bam = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sorted.bam"),
+        ref = join(workpath, "refs", ref_genome),
+        dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+    output:
+        tsv = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
+    params:
+        rname  = 'dinosam2tsv',
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_sam2tsv", cluster))
+    shell: 
+        """
+        # Convert SAM to raw features TSV
+        samtools view \\
+            -@{threads} \\
+            -h \\
+            -F 4 \\
+            {input.bam} \\
+        | java -jar ${{PICARDJARPATH}}/sam2tsv.jar -r {input.ref} \\
+        | awk 'BEGIN{{FS=OFS="\\t"}} ($9 != "S") && ($9 != "H") && ($9 != "N")' - \\
+        | awk 'BEGIN{{FS=OFS="\\t"}} \\
+            ($7=="."){{$7="-99";}} \\
+            ($4=="."){{$4="-99"}} \\
+            ($5=="."){{$5="na"}} \\
+            ($8=="."){{$8="na"}} \\
+            ($9=="D"){{$6=" "}} \\
+            ($2==16){{$2="n"}} \\
+            ($2==0){{$2="p"}} 1' \\
+        > {output.tsv}
+        """
