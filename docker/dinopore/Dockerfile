@@ -158,4 +158,6 @@ RUN git clone https://github.com/darelab2014/Dinopore.git \
 ADD Dockerfile /opt2/dinopore.dockerfile
 RUN chmod -R a+rX /opt2
 ENV PATH="/opt2/Dinopore/code/misc/:$PATH"
+ENV PICARDJARPATH="/opt2/Dinopore/code/misc"
+ENV PICARD="/opt2/Dinopore/code/misc"
 WORKDIR /data2
