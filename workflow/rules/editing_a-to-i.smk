@@ -133,3 +133,30 @@ rule dinopore_nanopolish:
             --scale-events \\
         > {output.events}
         """
+
+
+rule dinopore_fadict:
+    """
+    Creates a sequence dictionary of the reference genome.
+    @Input:
+        Genomic FASTA file
+    @Output:
+        Sequence dictionary
+    """
+    input:
+        ref = join(workpath, "refs", ref_genome),
+    output:
+        dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+    params:
+        rname  = 'dinodict',
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_fadict", cluster))
+    shell: 
+        """
+        # Build an sequence dictionary
+        java -jar ${{PICARDJARPATH}}/picard.jar \\
+            CreateSequenceDictionary \\
+            R={input.ref} \\
+            O={output.dct}
+        """

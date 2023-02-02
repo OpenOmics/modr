@@ -74,6 +74,8 @@ rule all:
         join(workpath, "refs", ref_genome),
         join(workpath, "refs", ref_transcripts),
         join(workpath, "refs", ref_gtf),
+        # Sequence dictionary for DInoPORE
+        join(workpath, "refs", "{0}.dict".format(ref_genome)),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
