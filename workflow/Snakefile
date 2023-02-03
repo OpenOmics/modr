@@ -74,6 +74,12 @@ rule all:
         join(workpath, "refs", ref_genome),
         join(workpath, "refs", ref_transcripts),
         join(workpath, "refs", ref_gtf),
+        # DInoPORE I-to-A RNA-editing rule
+        # Create a sequence dictionary for sam2tsv
+        # and create an index for the FASTA file
+        # @imported from `rule dinopore_fadict` in rules/editing_a-to-i.smk
+        join(workpath, "refs", "{0}.dict".format(ref_genome)),
+        join(workpath, "refs", "{0}.fai".format(ref_genome)),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
@@ -145,6 +151,13 @@ rule all:
         # @imported from `rule dinopore_nanopolish` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.txt"), 
+            name=samples
+        ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Convert SAM to raw features TSV 
+        # @imported from `rule dinopore_sam2tsv` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
             name=samples
         ),
         # MultiQC to aggregate results into a report

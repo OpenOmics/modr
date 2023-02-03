@@ -133,3 +133,84 @@ rule dinopore_nanopolish:
             --scale-events \\
         > {output.events}
         """
+
+
+rule dinopore_fadict:
+    """
+    Creates a sequence dictionary of the reference genome 
+    and create an index of the genomic FASTA file, which are
+    both needed by "sam2tsv.jar".  
+    @Input:
+        Genomic FASTA file
+    @Output:
+        Sequence dictionary,
+        FASTA index
+    """
+    input:
+        ref = join(workpath, "refs", ref_genome),
+    output:
+        dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+        fai = join(workpath, "refs", "{0}.fai".format(ref_genome)),
+    params:
+        rname  = 'dinodict',
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_fadict", cluster))
+    shell: 
+        """
+        # Build an sequence dictionary
+        java -jar ${{PICARDJARPATH}}/picard.jar \\
+            CreateSequenceDictionary \\
+            R={input.ref} \\
+            O={output.dct}
+        # Create FASTA index
+        samtools faidx \\
+            {input.ref} \\
+             --fai-idx {output.fai}
+        """
+
+
+rule dinopore_sam2tsv:
+    """
+    Data-processing step to convert bam file into tsv file, then process 
+    it to remove (S, H and N), only keeping M (match or mismatch), D (deletion)
+    and I (insertion).
+    @Input:
+        Sorted Graphmap2 Genomic BAM file
+        Genomic FASTA file
+        Sequence Dictionary
+    @Output:
+        Raw Features TSV
+    """
+    input:
+        bam = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sorted.bam"),
+        ref = join(workpath, "refs", ref_genome),
+        dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+        fai = join(workpath, "refs", "{0}.fai".format(ref_genome)),
+    output:
+        tsv = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
+    params:
+        rname  = 'dinosam2tsv',
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_sam2tsv", cluster))
+    shell: 
+        """
+        # Convert SAM to raw features TSV
+        samtools view \\
+            -@{threads} \\
+            -h \\
+            -F 4 \\
+            {input.bam} \\
+        | java -jar ${{PICARDJARPATH}}/sam2tsv.jar -r {input.ref} \\
+        | awk 'BEGIN{{FS=OFS="\\t"}} ($9 != "S") && ($9 != "H") && ($9 != "N")' - \\
+        | awk 'BEGIN{{FS=OFS="\\t"}} \\
+            ($7=="."){{$7="-99";}} \\
+            ($4=="."){{$4="-99"}} \\
+            ($5=="."){{$5="na"}} \\
+            ($8=="."){{$8="na"}} \\
+            ($9=="D"){{$6=" "}} \\
+            ($2==16){{$2="n"}} \\
+            ($2==0){{$2="p"}} 1' \\
+        > {output.tsv}
+        """
