@@ -137,16 +137,20 @@ rule dinopore_nanopolish:
 
 rule dinopore_fadict:
     """
-    Creates a sequence dictionary of the reference genome.
+    Creates a sequence dictionary of the reference genome 
+    and create an index of the genomic FASTA file, which are
+    both needed by "sam2tsv.jar".  
     @Input:
         Genomic FASTA file
     @Output:
-        Sequence dictionary
+        Sequence dictionary,
+        FASTA index
     """
     input:
         ref = join(workpath, "refs", ref_genome),
     output:
         dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+        fai = join(workpath, "refs", "{0}.fai".format(ref_genome)),
     params:
         rname  = 'dinodict',
     conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
@@ -159,6 +163,10 @@ rule dinopore_fadict:
             CreateSequenceDictionary \\
             R={input.ref} \\
             O={output.dct}
+        # Create FASTA index
+        samtools faidx \\
+            {input.ref} \\
+             --fai-idx {output.fai}
         """
 
 
@@ -178,6 +186,7 @@ rule dinopore_sam2tsv:
         bam = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sorted.bam"),
         ref = join(workpath, "refs", ref_genome),
         dct = join(workpath, "refs", "{0}.dict".format(ref_genome)),
+        fai = join(workpath, "refs", "{0}.fai".format(ref_genome)),
     output:
         tsv = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
     params:
