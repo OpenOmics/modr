@@ -165,8 +165,7 @@ rule dinopore_fadict:
             O={output.dct}
         # Create FASTA index
         samtools faidx \\
-            {input.ref} \\
-             --fai-idx {output.fai}
+            {input.ref}
         """
 
 
