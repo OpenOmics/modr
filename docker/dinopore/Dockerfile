@@ -152,12 +152,30 @@ RUN git clone https://github.com/darelab2014/Dinopore.git \
     && git log > /opt2/Dinopore/GIT_LOG \
     && rm -rf /opt2/Dinopore/.git/
 
+# Install missing compression
+# library needed for nanopolish,
+# need to export HDF5_PLUGIN_PATH,
+# see below
+RUN wget https://github.com/nanoporetech/vbz_compression/releases/download/1.0.2/ont-vbz-hdf-plugin_1.0.2-1.focal_amd64.deb \
+    -O /opt2/ont-vbz-hdf-plugin_1.0.2-1.focal_amd64.deb \
+    && apt --fix-broken install /opt2/ont-vbz-hdf-plugin_1.0.2-1.focal_amd64.deb \
+    && rm /opt2/ont-vbz-hdf-plugin_1.0.2-1.focal_amd64.deb \
+    && apt-get clean && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 ################ POST #################
 # Add Dockerfile and export environment 
 # variables and update permissions
 ADD Dockerfile /opt2/dinopore.dockerfile
 RUN chmod -R a+rX /opt2
-ENV PATH="/opt2/Dinopore/code/misc/:$PATH"
-ENV PICARDJARPATH="/opt2/Dinopore/code/misc"
-ENV PICARD="/opt2/Dinopore/code/misc"
+ENV PATH="/opt2/Dinopore/code/misc/:$PATH" \
+    PICARDJARPATH="/opt2/Dinopore/code/misc" \
+    PICARD="/opt2/Dinopore/code/misc/picard.jar" \
+    DINOPORE_PATH="/opt2/Dinopore" \
+    DINOPORE_CODE="/opt2/Dinopore/code" \
+    DINOPORE_JARPATH="/opt2/Dinopore/code/misc" \
+    DINOPORE_CPP="/opt2/Dinopore/code/misc/all_functions.cpp" \
+    DINOPORE_MISC="/opt2/Dinopore/code/misc" \
+    HDF5_PLUGIN_PATH="/usr/local/hdf5/lib/plugin/"
+
 WORKDIR /data2
