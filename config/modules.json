@@ -4,6 +4,7 @@
     },
     "conda":{
         "modr": "workflow/envs/modr.yaml",
-        "dinopore": "workflow/envs/dinopore.yaml"
+        "dinopore": "workflow/envs/dinopore.yaml",
+        "pycoqc": "workflow/envs/pycoqc.yaml"
     }
 }
