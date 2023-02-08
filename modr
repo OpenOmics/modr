@@ -50,6 +50,7 @@ from src.utils import (
     err,
     exists,
     fatal,
+    hashed,
     permissions,
     require
 )
@@ -192,8 +193,25 @@ def run(sub_args):
             err(
                 "Error: missing required information in --groups '{}' file!".format(sub_args.groups)
             )
-            err("List of lines containing missing fields:\n{}".format(grp_missing))
+            err("List of lines containing missing fields:\n{}".format(col_missing))
             fatal("Please update your groups file to each of the required fields.")
+
+    # Create a dictionary mapping
+    # each fast5 path to its list
+    # of samples, going to create
+    # a hash from the list of 
+    # samples for pycoQC
+    config['fast5_hashes'] = {}
+    samples = sorted(list(config['barcodes'].keys()))
+    fast5_path_to_samples = {}
+    for s in samples:
+        f5 = config['fast5'][s]
+        if f5 not in fast5_path_to_samples:
+            fast5_path_to_samples[f5] = []
+        fast5_path_to_samples[f5].append(s)
+    for f5 in fast5_path_to_samples:
+        samples_hash = hashed(fast5_path_to_samples[f5])
+        config['fast5_hashes'][f5] = samples_hash
 
     # Step 3. Resolve docker/singularity bind
     # paths from the config file.
