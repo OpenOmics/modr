@@ -3,6 +3,9 @@
   <h1 style="font-size: 250%">modr 🔬</h1>
 
   <b><i>RNA modification Pipeline for ONT direct RNA-sequencing</i></b><br>
+  <a href="https://hub.docker.com/repository/docker/skchronicles/dinopore">
+    <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/skchronicles/dinopore">
+  </a>
   <a href="https://github.com/OpenOmics/modr/actions/workflows/main.yaml">
     <img alt="tests" src="https://github.com/OpenOmics/modr/workflows/tests/badge.svg">
   </a>
