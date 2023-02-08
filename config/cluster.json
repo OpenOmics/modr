@@ -54,5 +54,15 @@
         "threads": "4",
         "mem": "32g",
         "time": "8:00:00"
+    },
+    "pycoqc_summary": {
+        "threads": "8",
+        "mem": "32g",
+        "time": "8:00:00"
+    },
+    "pycoqc_report": {
+        "threads": "4",
+        "mem": "32g",
+        "time": "8:00:00"
     }
 }
