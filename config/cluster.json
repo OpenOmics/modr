@@ -48,7 +48,7 @@
     "dinopore_nanopolish": {
         "threads": "16",
         "mem": "32g",
-        "time": "1-18:00:00"
+        "time": "3-00:00:00"
     },
     "dinopore_sam2tsv": {
         "threads": "4",
