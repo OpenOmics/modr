@@ -39,6 +39,21 @@ ref_gtf = resolve_ref(
 # means they need to be merged  
 barcoded_samples = [k for k in samples2barcodes if samples2barcodes[k]]
 samples = list(config['barcodes'].keys())
+# Get hash for the list of samples
+# belonging to a given fast5 path,
+# pycoQC takes a fast5 path as input,
+# to create a summary file; however,
+# it is possible that multiple samples
+# can be in the same fast5 path. Using
+# a hash that is unique to the list of 
+# samples belonging to a given fast5
+# path ensures no collisions occur.
+fast5_to_hash = config['fast5_hashes']
+f5_hashes = list(fast5_to_hash.values())
+hash_to_fast5 = {
+    h:f5 for f5,h in fast5_to_hash.items()
+}
+
 # Nanofilt read average quality score filter
 quality_filter = int(
     config['options']['quality_filter']
@@ -80,6 +95,12 @@ rule all:
         # @imported from `rule dinopore_fadict` in rules/editing_a-to-i.smk
         join(workpath, "refs", "{0}.dict".format(ref_genome)),
         join(workpath, "refs", "{0}.fai".format(ref_genome)),
+        # pycoQC sequencing QC report
+        # @imported from `rule pycoqc_*` in rules/qc.smk
+        expand(
+            join(workpath, "reports", "pycoQC", "{samples_hash}", "pycoQC_report.html"),
+            samples_hash=f5_hashes
+        ),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
