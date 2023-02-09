@@ -22,7 +22,18 @@ rule pycoqc_summary:
     Fast5_to_seq_summary \\
         --threads {threads} \\
         -f {params.f5path} \\
-        -s {output.tsv}
+        -s {output.tsv} \\
+        --verbose 2 \\
+        --fields barcode_arrangement barcode_full_arrangement \\
+            barcode_score calibration_strand_end \\
+            calibration_strand_genome_template \\
+            calibration_strand_identity calibration_strand_start \\
+            called_events channel channel_digitisation \\
+            channel_offset channel_range channel_sampling_rate \\
+            device_id duration flow_cell_id mean_qscore_template \\
+            protocol_run_id read_id read_number run_id sample_id \\
+            sequence_length_template skip_prob start_mux \\
+            start_time stay_prob step_prob strand_score
     """
 
 
