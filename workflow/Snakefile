@@ -97,10 +97,10 @@ rule all:
         join(workpath, "refs", "{0}.fai".format(ref_genome)),
         # pycoQC sequencing QC report
         # @imported from `rule pycoqc_*` in rules/qc.smk
-        expand(
-            join(workpath, "reports", "pycoQC", "{samples_hash}", "pycoQC_report.html"),
-            samples_hash=f5_hashes
-        ),
+        #expand(
+        #    join(workpath, "reports", "pycoQC", "{samples_hash}", "pycoQC_report.html"),
+        #    samples_hash=f5_hashes
+        #),
         # Merge samples with multiple barcodes,
         # @imported from `rule setup` in rules/trim.smk 
         expand(
