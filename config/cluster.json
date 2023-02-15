@@ -64,5 +64,10 @@
         "threads": "4",
         "mem": "32g",
         "time": "8:00:00"
+    },
+    "dinopore_combine_events": {
+        "threads": "48",
+        "mem": "96g",
+        "time": "1-08:00:00"
     }
 }
