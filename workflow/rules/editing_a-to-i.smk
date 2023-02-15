@@ -250,7 +250,7 @@ rule dinopore_combine_events:
         head -n 1 {input.events} \\
             > {params.header}
         noline=$(wc -l {input.events} | cut -d " " -f 1)
-        tmp="${params.tmp}"
+        tmp="{params.tmp}"
         num=2
         chunk=10000000
         num1=$(expr $num + $chunk)
