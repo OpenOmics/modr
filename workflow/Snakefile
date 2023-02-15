@@ -181,6 +181,13 @@ rule all:
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
             name=samples
         ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Combine nanopolish event-level signal 
+        # @imported from `rule dinopore_combine_events` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
+            name=samples
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),

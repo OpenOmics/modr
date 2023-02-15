@@ -213,3 +213,78 @@ rule dinopore_sam2tsv:
             ($2==0){{$2="p"}} 1' \\
         > {output.tsv}
         """
+
+
+rule dinopore_combine_events:
+    """
+    Data-processing step to combine/collapse event-level signal
+    information from nanopolish. For more information, please see:
+    https://github.com/darelab2014/Dinopore/blob/main/code/s2.Combine_raw_nnpl.sh
+    NOTE: Look into futher optimizing this rule later, some of these 
+    calculation can probably be made in massively in parallel instead
+    of serially.
+    @Input:
+        Nanopolish signal event align file
+    @Output:
+        Combined Nanopolish signal event align file
+    """
+    input:
+        events  = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.txt"),
+    output:
+        events  = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
+    params:
+        rname  = 'dinocombine',
+        outdir = join(workpath, "{name}", "rna-editing", "dinopore"),
+        header = join(workpath, "{name}", "rna-editing", "dinopore", 'raw_nanopolish.header'),
+        tmp = join(workpath, "{name}", "rna-editing", "dinopore", 'tmp.nnpl'),
+
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_combine_events", cluster))
+    shell: 
+        """
+        # Setup for the combine step,
+        # see github repo for more info:
+        # https://github.com/darelab2014/Dinopore/blob/main/code/s2.Combine_raw_nnpl.sh
+        cd "{params.outdir}"
+        head -n 1 {input.events} \\
+            > {params.header}
+        noline=$(wc -l {input.events} | cut -d " " -f 1)
+        tmp="${params.tmp}"
+        num=2
+        chunk=10000000
+        num1=$(expr $num + $chunk)
+        num2=$(expr $num1 + 1)
+        filecount=1
+
+        # Combine event-level signal information
+        while [ $num -le $noline ]; do
+            sed -n "$num,${{num1}}p; ${{num2}}q" {input.events} > "$tmp"
+            chk=$(wc -l "$tmp" | cut -f 1 -d " ")
+            echo "Processing reads $num to $num1 in file $filecount"
+            if [ $chk -gt 0 ]; then
+                Rscript ${{DINOPORE_CODE}}/s2.Combine_raw_nanopolish.R \\
+                    -f "$tmp" \\
+                    -t {threads} \\
+                    -o {output.events}.part${{filecount}} \\
+                    -s ${{noline}} \\
+                    -n ${{num}} \\
+                    -c ${{chunk}}
+                if test -f tmp.eli; then
+                    eli=$(cat tmp.eli)
+                    rm "tmp.eli"
+                else
+                    eli=0
+                fi
+            fi
+            num=$(( $num1 - $eli + 1 ))
+            num1=$(expr $num + $chunk)
+            num2=$(expr $num1 + 1)
+            filecount=$(expr $filecount + 1)
+        done
+
+        # Combine results of all parts
+        cat ${{DINOPORE_CODE}}/misc/nnpl.header > {output.events}
+        cat {output.events}.part* | grep -v contig >> {output.events}
+        rm -f tmp.nnpl {output.events}.part*
+        """
