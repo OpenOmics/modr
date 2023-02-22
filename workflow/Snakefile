@@ -39,6 +39,7 @@ ref_gtf = resolve_ref(
 # means they need to be merged  
 barcoded_samples = [k for k in samples2barcodes if samples2barcodes[k]]
 samples = list(config['barcodes'].keys())
+groups = [config['sample2group'][s] for s in samples]
 # Get hash for the list of samples
 # belonging to a given fast5 path,
 # pycoQC takes a fast5 path as input,
@@ -175,7 +176,7 @@ rule all:
             name=samples
         ),
         # DInoPORE I-to-A RNA-editing rule
-        # Convert SAM to raw features TSV 
+        # Convert SAM to filtered TSV file 
         # @imported from `rule dinopore_sam2tsv` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
@@ -187,6 +188,15 @@ rule all:
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
             name=samples
+        ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Generate raw feature table
+        # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
+            zip,
+            name=samples,
+            group=groups
         ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
