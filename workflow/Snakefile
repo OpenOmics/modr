@@ -193,7 +193,7 @@ rule all:
         # Generate raw feature table
         # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
         expand(
-            join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
+            join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
             zip,
             name=samples,
             group=groups

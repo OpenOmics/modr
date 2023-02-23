@@ -307,7 +307,7 @@ rule dinopore_feature_table:
         tsv = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
         events  = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
     output: 
-        table = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
+        table = join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
     params:
         rname  = 'dinofeats',
         outdir = join(workpath, "{name}", "rna-editing", "dinopore"),
