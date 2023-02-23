@@ -380,10 +380,13 @@ rule dinopore_feature_table:
                     {input.events} \\
                 >> {params.innnpl}
 
-                # Create chunked raw features files
+                # Create chunked raw features files,
+                # Rscript cannot use files with abs paths
+                rel_intsv="$(basename {params.intsv})"
+                rel_innnpl="$(basename {params.innnpl})"
                 Rscript ${{DINOPORE_CODE}}/s3.Generate_raw_feature_table.R \\
-                    -n {params.innnpl} \\
-                    -t {params.intsv} \\
+                    -n ${{rel_innnpl}} \\
+                    -t ${{rel_intsv}} \\
                     -o {params.outname}.part${{filecount}}
 
                 num=$num2
