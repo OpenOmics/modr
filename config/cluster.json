@@ -74,5 +74,10 @@
         "threads": "16",
         "mem": "64g",
         "time": "1-08:00:00"
+    },
+    "dinopore_feature_aggregation": {
+        "threads": "16",
+        "mem": "64g",
+        "time": "1-08:00:00"
     }
 }
