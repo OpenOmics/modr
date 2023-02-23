@@ -320,11 +320,22 @@ rule dinopore_feature_table:
         common = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.reads.intersect"),
         intsv  = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.input.filteredSHN.tsv.txt"), 
         innnpl = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.input.nanopolish.eventAlignOut.combined.txt"), 
+        # Needs dedicated space for sorting 
+        # large files, otherwise /tmp disk
+        # quota will get exceeded
+        tmpdir = join(workpath, "{name}", "rna-editing", "dinopore", "sort_tmp"), 
     conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
     container: depending(config['images']['dinopore'], use_singularity)
     threads: int(allocated("threads", "dinopore_feature_table", cluster))
     shell: 
         """
+        # Setups temporary directory for
+        # intermediate files with built-in 
+        # mechanism for deletion on exit
+        if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+        tmp=$(mktemp -d -p "{params.tmpdir}")
+        trap 'rm -rf "${{tmp}}"' EXIT
+
         # Setup for the feature table step,
         # see github repo for more info:
         # https://github.com/darelab2014/Dinopore/blob/main/code/S3.Generate_raw_features.sh
@@ -401,11 +412,11 @@ rule dinopore_feature_table:
         cat ${{DINOPORE_CODE}}/misc/inae.header \\
         > {output.table}
         cat {params.outname}.part*.positive \\
-            | LC_ALL=C sort -k1,1 -k3,3n \\
+            | LC_ALL=C sort -T "${{tmp}}" -k1,1 -k3,3n \\
             | grep -v contig \\
         >> {output.table}
         cat {params.outname}.part*.negative \\
-            | LC_ALL=C sort -k1,1 -k3,3n \\
+            | LC_ALL=C sort -T "${{tmp}}" -k1,1 -k3,3n \\
             | grep -v contig \\
         >> {output.table}
         
