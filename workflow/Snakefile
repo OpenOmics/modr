@@ -193,9 +193,16 @@ rule all:
         # Generate raw feature table
         # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
         expand(
-            join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
+            join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish_grp_{group}.txt"),
             zip,
             name=samples,
+            group=groups
+        ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Generate group aggregated feature table
+        # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "project", "rna-editing", "dinopore", "{group}.aggr.10bin.inML.txt"),
             group=groups
         ),
         # MultiQC to aggregate results into a report

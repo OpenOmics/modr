@@ -1,5 +1,4 @@
 # A-to-I RNA-editing rules 
-
 # @DISCLAIMER: PLEASE READ THROUGH THIS MESSAGE!
 # Rules for running DInoPORE: Direct detection 
 # of INOsines in native RNA with nanoPORE sequencing.
@@ -26,6 +25,24 @@
 #   Direct identification of A-to-I editing sites with 
 #   nanopore native RNA sequencing. Nat Methods 19, 833–844 
 #   (2022). https://doi.org/10.1038/s41592-022-01513-3
+
+# Helper functions
+def get_dinopore_aggregation_inputs(wildcards):
+    """Gets list of input files for the 
+    `rule dinopore_feature_aggregation`.
+    Pull list of samples for each group 
+    from config file.
+    """
+    # Must have groups for each sample
+    grp = str(wildcards.group)
+    s = config['groups'][grp]
+    return expand(
+            join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish_grp_{group}.txt"),
+            name=s,
+            group=grp
+        )
+
+
 rule dinopore_graphmap2:
     """
     Data-processing step for setting up dinopore. This step
@@ -291,7 +308,7 @@ rule dinopore_combine_events:
 
 rule dinopore_feature_table:
     """
-    Data-processing step generate a raw feature table for dinopore's 
+    Data-processing step to generate a raw feature table for dinopore's 
     pre-built model. For more information, please see the following:
     https://github.com/darelab2014/Dinopore/blob/main/code/S3.Generate_raw_features.sh
     NOTE: Look into futher optimizing this rule later, some of these 
@@ -301,13 +318,13 @@ rule dinopore_feature_table:
         Filtered Alignments TSV (scatter),
         Combined Nanopolish signal event align file (scatter)
     @Output:
-        Combined Nanopolish signal event align file
+        Raw feature table with alignment + event information
     """
     input:
         tsv = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
         events  = join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
     output: 
-        table = join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish.grp_{group}.txt"),
+        table = join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish_grp_{group}.txt"),
     params:
         rname  = 'dinofeats',
         outdir = join(workpath, "{name}", "rna-editing", "dinopore"),
@@ -428,4 +445,40 @@ rule dinopore_feature_table:
             {params.innnpl} \\
             {params.outname}.part*.positive \\
             {params.outname}.part*.negative
+        """
+
+
+rule dinopore_feature_aggregation:
+    """
+    Data-processing step to aggregate features of all reads at
+    the same positions across multiple samples in the same group. 
+    For more information, please see the following:
+    https://github.com/darelab2014/Dinopore/blob/main/code/S4.Aggregate_reads_into_pos.sh
+    @Input:
+        Raw feature table with alignment + event information (gather-by-group)
+    @Output:
+        Aggregated feature table
+    """
+    input:
+        get_dinopore_aggregation_inputs,
+    output: 
+        table = join(workpath, "project", "rna-editing", "dinopore", "{group}.aggr.10bin.inML.txt"),
+    params:
+        rname  = 'dinoaggr',
+        group  = "{group}" ,
+        outdir = join(workpath, "project", "rna-editing", "dinopore"),
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_feature_aggregation", cluster))
+    shell: 
+        """
+        # Aggregate features of all
+        # reads at the same position
+        # across multiple samples in 
+        # the same group
+        cd "{params.outdir}"
+        Rscript ${{DINOPORE_CODE}}/s4.Aggregating_reads_pos.R \\
+            -t {threads} \\
+            -o {output.table} \\
+            -r _{params.group} 
         """
