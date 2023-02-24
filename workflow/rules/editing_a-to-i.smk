@@ -482,3 +482,38 @@ rule dinopore_feature_aggregation:
             -o {output.table} \\
             -r _{params.group} 
         """
+
+
+rule dinopore_transform:
+    """
+    Data-processing step to transform/pre-processing the aggregated features
+    file prior to running the model. For more information, please see:
+    https://github.com/darelab2014/Dinopore/blob/main/code/S5.Transform_dim.sh
+    @Input:
+        Aggregated feature table (scatter-per-group)
+    @Output:
+        Rdata file containing input for CNN regression model
+    """
+    input:
+        table = join(workpath, "project", "rna-editing", "dinopore", "{group}.aggr.10bin.inML.txt"),
+    output: 
+        rdata = join(workpath, "project", "rna-editing", "dinopore", "{group}.input_CNN_regression_modelgen.RData"),
+    params:
+        rname  = 'dinotrans',
+        outdir = join(workpath, "project", "rna-editing", "dinopore"),
+        truth = config['references']['DINOPORE_CLASSREF'],
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_transform", cluster))
+    shell: 
+        """
+        # Transform/pre-process features
+        # file to create input for CNN,
+        # regression model
+        cd "{params.outdir}"
+        Rscript ${{DINOPORE_CODE}}/s5.Preprocess_data_matrix_inputCNN.R \\
+            -t {threads} \\
+            -i {input.table}
+            -o {output.rdata} \\
+            -c {params.truth}
+        """

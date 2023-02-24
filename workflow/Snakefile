@@ -205,6 +205,14 @@ rule all:
             join(workpath, "project", "rna-editing", "dinopore", "{group}.aggr.10bin.inML.txt"),
             group=groups
         ),
+        # DInoPORE I-to-A RNA-editing rule
+        # Pre-processing aggreagated feature table
+        # to create input for CNN/regression model
+        # @imported from `rule dinopore_transform` in rules/editing_a-to-i.smk
+        expand(
+            join(workpath, "project", "rna-editing", "dinopore", "{group}.input_CNN_regression_modelgen.RData"),
+            group=groups
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),
