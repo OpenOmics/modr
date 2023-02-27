@@ -517,3 +517,40 @@ rule dinopore_transform:
             -o {output.rdata} \\
             -c {params.truth}
         """
+
+
+rule dinopore_predict:
+    """
+    Data-processing step to predict the A-to-I RNA-editing rate.
+    This is the final step in the DInopore's prediction pipeline.
+    For more information, please see:
+    https://github.com/darelab2014/Dinopore/blob/main/code/S6.Predict.sh
+    @Input:
+        Rdata file containing input for CNN regression model
+    @Output:
+        Class0 A-to-I RNA-editing predictions,
+        Class1 A-to-I RNA-editing predictions,
+        Class2 A-to-I RNA-editing predictions
+    """
+    input:
+        rdata = join(workpath, "project", "rna-editing", "dinopore", "{group}.input_CNN_regression_modelgen.RData"),
+    output: 
+        class0 = join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class0.txt"),
+        class1 = join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class1.txt"),
+        class2 = join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class2.txt"),
+    params:
+        rname  = 'dinopredict',
+        outdir = join(workpath, "project", "rna-editing", "dinopore"),
+        code = config['references']['DINOPORE_CODE'],
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "dinopore_predict", cluster))
+    shell: 
+        """
+        # Predict A-to-I RNA-editing
+        cd "{params.outdir}"
+        DINOPORE_CODE="{params.code}"
+        Rscript ${{DINOPORE_CODE}}/s5.Preprocess_data_matrix_inputCNN.R \\
+            -t {threads} \\
+            -i {input.rdata}
+        """
