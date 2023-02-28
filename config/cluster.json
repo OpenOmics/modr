@@ -76,8 +76,9 @@
         "time": "1-08:00:00"
     },
     "dinopore_feature_aggregation": {
+        "partition": "largemem",
         "threads": "16",
-        "mem": "373g",
+        "mem": "1000g",
         "time": "2-00:00:00"
     },
     "dinopore_transform": {
