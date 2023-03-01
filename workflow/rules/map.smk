@@ -89,12 +89,16 @@ rule minimap2_transcriptome:
 
         # Align against reference genome,
         # minimap2 automatically handles
-        # conversion of U to T bps
+        # conversion of U to T bps, See 
+        # this issue for the author of 
+        # minimap2's recomendations for 
+        # aligning direct RNA reads against 
+        # the transcriptome:
+        # https://github.com/lh3/minimap2/issues/340  
         minimap2 \\
-            -ax splice \\
+            -ax map-ont \\
             -N 10 \\
-            -uf \\
-            -k14 \\
+            -k10 \\
             {input.ref} \\
             {input.fq} \\
         | samtools sort -@{threads} \\

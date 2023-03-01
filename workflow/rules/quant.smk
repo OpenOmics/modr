@@ -1,7 +1,7 @@
 # Quantification rules
 rule nanocount:
     """
-    Quality-control step to gather various statistics from a BAM file.
+    Data-processing step to get transcript counts.
     This tool is supported by MultiQC.
     Github: https://github.com/a-slide/NanoCount
     @Input:
