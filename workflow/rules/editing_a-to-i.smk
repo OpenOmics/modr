@@ -513,7 +513,7 @@ rule dinopore_transform:
         cd "{params.outdir}"
         Rscript ${{DINOPORE_CODE}}/s5.Preprocess_data_matrix_inputCNN.R \\
             -t {threads} \\
-            -i {input.table}
+            -i {input.table} \\
             -o {output.rdata} \\
             -c {params.truth}
         """
