@@ -38,6 +38,7 @@ rule minimap2_genome:
         # conversion of U to T bps 
         minimap2 \\
             -ax splice \\
+            --MD \\
             -uf \\
             -k14 \\
             {input.ref} \\
