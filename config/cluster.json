@@ -82,13 +82,15 @@
         "time": "2-00:00:00"
     },
     "dinopore_transform": {
+        "partition": "largemem",
         "threads": "16",
-        "mem": "192g",
-        "time": "1-08:00:00"
+        "mem": "512g",
+        "time": "2-08:00:00"
     },
     "dinopore_predict": {
+        "partition": "largemem",
         "threads": "16",
-        "mem": "192g",
+        "mem": "512g",
         "time": "1-08:00:00"
     }
 }
