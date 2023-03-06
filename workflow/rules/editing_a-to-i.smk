@@ -550,7 +550,7 @@ rule dinopore_predict:
         # Predict A-to-I RNA-editing
         cd "{params.outdir}"
         DINOPORE_CODE="{params.code}"
-        Rscript ${{DINOPORE_CODE}}/s5.Preprocess_data_matrix_inputCNN.R \\
+        Rscript ${{DINOPORE_CODE}}/s6.Predict_test_data.R \\
             -t {threads} \\
             -i {input.rdata}
         """
