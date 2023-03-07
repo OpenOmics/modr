@@ -548,6 +548,9 @@ rule dinopore_predict:
     shell: 
         """
         # Predict A-to-I RNA-editing
+        # Class 0: A (unmodified)
+        # Class 1: I (editied)
+        # Class 2: G (SNP)
         cd "{params.outdir}"
         DINOPORE_CODE="{params.code}"
         Rscript ${{DINOPORE_CODE}}/s6.Predict_test_data.R \\
