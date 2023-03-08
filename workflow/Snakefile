@@ -161,6 +161,10 @@ rule all:
             join(workpath, "{name}", "counts", "{name}.nanocount.transcripts.tsv"),
             name=samples
         ),
+        # NanoCount to quantify isoform counts
+        # @imported from `rule nanocount` in rules/quant.smk
+        join(workpath, "project", "counts", "known", "nanocount.transcripts.counts.tsv"),
+        join(workpath, "project", "counts", "known", "nanocount.transcripts.tpm.tsv"),
         # DInoPORE I-to-A RNA-editing rule
         # Align to reference genome with Graphmap2
         # @imported from `rule dinopore_graphmap2` in rules/editing_a-to-i.smk
