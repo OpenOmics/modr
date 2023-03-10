@@ -96,5 +96,10 @@
         "threads": "16",
         "mem": "512g",
         "time": "1-08:00:00"
+    },
+    "flair_correct": {
+        "threads": "16",
+        "mem": "32g",
+        "time": "0-08:00:00"
     }
 }
