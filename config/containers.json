@@ -2,6 +2,7 @@
     "images": {
         "modr": "docker://skchronicles/modr:v0.1.0",
         "dinopore": "docker://skchronicles/dinopore:v0.1.0",
-        "pycoqc": "docker://skchronicles/pycoqc:v0.1.0"
+        "pycoqc": "docker://skchronicles/pycoqc:v0.1.0",
+        "flair": "docker://skchronicles/flair:v0.1.0"
     }
 }
