@@ -46,7 +46,7 @@ rule nanocount_aggregate:
         tpm = join(workpath, "project", "counts", "known", "nanocount.transcripts.tpm.tsv"),
     params:
         rname   = "nanocaggr",
-        script  = join("workflow", "scripts", "create_matrix.py")
+        script  = join("workflow", "scripts", "create_matrix.py"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "nanocount_aggregate", cluster))
@@ -69,4 +69,48 @@ rule nanocount_aggregate:
         --extract tpm \\
         --clean-suffix '.nanocount.transcripts.tsv' \\
         --nan-values 0.0
+    """
+
+
+rule flair_correct:
+    """
+    Data-processing step to convert BAM file to BED12 format and 
+    to correct misaligned splice sites using genome annotations.
+    We are skipping the `flair align` step as we already have 
+    a sorted BAM file aligned to the genome using the same 
+    minimap2 options.
+    Github: https://github.com/BrooksLabUCSC/flair
+    @Input:
+        Sorted Genomic BAM file (scatter)
+    @Output:
+        Sorted Genomics Alignments in BED12,
+        FLAIR Correct Genomic Alignments in BED12  
+    """
+    input:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.genome.bam"),
+        ref = join(workpath, "refs", ref_genome),
+        gtf = join(workpath, "refs", ref_gtf),
+    output:
+        bed12     = join(workpath, "{name}", "bams", "{name}.sorted.genome.bed"),
+        corrected = join(workpath, "{name}", "bams", "{name}_all_corrected.bed"),
+    params:
+        rname  = "flaircorr",
+        prefix = join(workpath, "{name}", "bams", "{name}"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['flair'], use_singularity)
+    threads: int(allocated("threads", "flair_correct", cluster))
+    shell: """
+    # Convert BAM into BED12
+    bam2Bed12 \\
+        -i {input.bam} \\
+    > {output.bed12}
+    # Correct misaligned splice
+    # sites with flair correct 
+    flair correct \\
+        -q {output.bed12} \\
+        -g {input.ref} \\
+        -f {input.gtf} \\
+        -t {threads} \\
+        -o {params.prefix} \\
+        --nvrna
     """
