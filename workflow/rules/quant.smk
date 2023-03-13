@@ -150,19 +150,32 @@ rule flair_collapse:
     params:
         rname  = "flaircoll",
         prefix = join(workpath, "project", "counts", "novel", "flair"),
+        tmpdir = join(workpath, "project", "counts", "novel", "flair_tmp"),
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['flair'], use_singularity)
     threads: int(allocated("threads", "flair_collapse", cluster))
     shell: """
+    # Setups temporary directory for
+    # intermediate files with built-in 
+    # mechanism for deletion on exit
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    trap 'rm -rf "${{tmp}}"' EXIT
+
     # Merge the corrected BED files
     cat {input.corrected} > {output.merged}
-    # Find high-confidence isoforms
+    
+    # Find high-confidence isoforms.
+    # Flair does not like transcript 
+    # IDs reported by GENCODE  
     flair collapse \\
+        --temp_dir "${{tmp}}" \\
         --threads {threads} \\
         --gtf {input.gtf} \\
         --genome {input.genome} \\
-        --annotation_reliant {input.transcriptome} \\
+        --annotation_reliant generate \\
         --check_splice \\
+        --stringent \\
         --reads {input.reads} \\
         --query {output.merged} \\
         --output {params.prefix}
