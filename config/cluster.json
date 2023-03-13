@@ -104,7 +104,7 @@
     },
     "flair_collapse": {
         "threads": "16",
-        "mem": "32g",
+        "mem": "64g",
         "time": "0-08:00:00"
     }
 }
