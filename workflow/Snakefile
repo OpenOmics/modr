@@ -223,10 +223,16 @@ rule all:
         expand(
             join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class0.txt"),            group=groups
         ),
-        # FLAIR, known/novel isoform quantification
+        # FLAIR Correct, known/novel isoform quantification
         # @imported from `rule flair_correct` in rules/quant.smk
         expand(
             join(workpath, "{name}", "bams", "{name}_all_corrected.bed"),
+            name=samples,
+        ),
+        # FLAIR Collapse, known/novel isoform quantification
+        # @imported from `rule flair_collapse` in rules/quant.smk
+        expand(
+            join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
             name=samples,
         ),
         # MultiQC to aggregate results into a report

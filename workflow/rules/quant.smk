@@ -114,3 +114,56 @@ rule flair_correct:
         -o {params.prefix} \\
         --nvrna
     """
+
+
+rule flair_collapse:
+    """
+    Data-processing step to define high-confidence isoforms 
+    from the corrected reads. If there are multiple samples
+    to be compared, the flair-corrected read bed files should
+    be concatenated prior to running flair-collapse. 
+    Github: https://github.com/BrooksLabUCSC/flair
+    @Input:
+        FLAIR Correct Genomic Alignments in BED12 (scatter)
+    @Output:
+        High-confidence Isoforms (BED),
+        High-confidence Isoforms (GTF),
+        High-confidence Isoforms (FASTA) 
+    """
+    input:
+        reads = expand(
+            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+            name=samples
+        ),
+        corrected = expand(
+            join(workpath, "{name}", "bams", "{name}_all_corrected.bed"),
+            name=samples,
+        ),
+        genome = join(workpath, "refs", ref_genome),
+        transcriptome = join(workpath, "refs", ref_transcripts),
+        gtf = join(workpath, "refs", ref_gtf),
+    output:
+        merged = join(workpath, "project", "counts", "novel", "flair_all_corrected.bed"),
+        bed = join(workpath, "project", "counts", "novel", "flair.isoforms.bed"),
+        gtf = join(workpath, "project", "counts", "novel", "flair.isoforms.gtf"),
+        fa  = join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
+    params:
+        rname  = "flaircoll",
+        prefix = join(workpath, "project", "counts", "novel", "flair"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['flair'], use_singularity)
+    threads: int(allocated("threads", "flair_collapse", cluster))
+    shell: """
+    # Merge the corrected BED files
+    cat {input.corrected} > {output.merged}
+    # Find high-confidence isoforms
+    flair collapse \\
+        --threads {threads} \\
+        --gtf {input.gtf} \\
+        --genome {input.genome} \\
+        --annotation_reliant {input.transcriptome} \\
+        --check_splice \\
+        --reads {input.reads} \\
+        --query {output.merged} \\
+        --output {params.prefix}
+    """
