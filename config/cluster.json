@@ -106,5 +106,10 @@
         "threads": "16",
         "mem": "64g",
         "time": "0-08:00:00"
+    },
+    "flair_quantify": {
+        "threads": "12",
+        "mem": "24g",
+        "time": "0-08:00:00"
     }
 }

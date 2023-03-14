@@ -235,6 +235,12 @@ rule all:
             join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
             name=samples,
         ),
+        # FLAIR Quantify, known/novel isoform quantification
+        # @imported from `rule flair_quantify` in rules/quant.smk
+        expand(
+            join(workpath, "project", "counts", "novel", "flair.counts_matrix.tsv"),
+            name=samples,
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),

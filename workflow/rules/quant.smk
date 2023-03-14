@@ -180,3 +180,88 @@ rule flair_collapse:
         --query {output.merged} \\
         --output {params.prefix}
     """
+
+
+rule flair_quantify:
+    """
+    Data-processing step to create a Isoform-by-sample counts 
+    matrix that can be used in flair's diffExp and diffSplice 
+    modules. Before running flair-quantify, a sample sheet or 
+    read manifest file must be created to map each sample to 
+    its batch (default: assumes no batches, add option later 
+    to provide batch information), group/condition, and fastq
+    files. This step takes the collapsed, high-confidence
+    isoforms called by the flair-collapse step as input to
+    get known/novel isoform counts. 
+    Github: https://github.com/BrooksLabUCSC/flair
+    @Input:
+        High-confidence Isoforms (FASTA),
+        High-confidence Isoforms (BED),
+    @Output:
+
+    """
+    input:
+        reads = expand(
+            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+            name=samples
+        ),
+        fa  = join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
+        bed  = join(workpath, "project", "counts", "novel", "flair.isoforms.bed"),
+    output:
+        manifest = join(workpath, "project", "counts", "novel", "flair.sample_manifest.tsv"),
+        counts = join(workpath, "project", "counts", "novel", "flair.counts_matrix.tsv"),
+    params:
+        rname  = "flairquant",
+        prefix = join(workpath, "project", "counts", "novel", "flair.counts_matrix"),
+        tmpdir = join(workpath, "project", "counts", "novel", "flair_tmp"),
+        workdir = join(workpath),
+        groups = config['options']['groups'], 
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['flair'], use_singularity)
+    threads: int(allocated("threads", "flair_quantify", cluster))
+    shell: """
+    # Setups temporary directory for
+    # intermediate files with built-in 
+    # mechanism for deletion on exit
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    trap 'rm -rf "${{tmp}}"' EXIT
+
+    # Create sample manifest file,
+    # TSV containing each samples 
+    # basename, group, batch, and 
+    # path to its FastQ file, the
+    # sample manifest file, cannot
+    # contain any underscores in the 
+    # first three columns; however,
+    # hypens cannot/should not used
+    # in the groups/condition column
+    awk -F '\\t' -v OFS='\\t' \\
+        '{{print \\
+            $1, \\
+            $3, \\
+            "batch1", \\
+            "{params.workdir}/"$1"/fastqs/"$1".filtered.fastq.gz" \\
+        }}' {params.groups} \\
+        | awk -F '\\t' -v OFS='\\t' \\
+            '{{gsub("_","-",$1); \\
+                gsub("_","",$2); \\
+                gsub("_","-",$3); \\
+                print \\
+            }}' \\
+    >  {output.manifest}
+
+    # Create isoform-by-sample counts 
+    # matrix that can be used in the 
+    # diffExp and diffSplice modules
+    flair quantify \\
+        -r {output.manifest} \\
+        -i {input.fa} \\
+        --isoform_bed {input.bed} \\
+        --check_splice \\
+        --stringent \\
+        --temp_dir "${{tmp}}" \\
+        --threads {threads} \\
+        --tpm \\
+        --output {params.prefix}
+    """
