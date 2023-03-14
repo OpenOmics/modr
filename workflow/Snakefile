@@ -231,16 +231,11 @@ rule all:
         ),
         # FLAIR Collapse, known/novel isoform quantification
         # @imported from `rule flair_collapse` in rules/quant.smk
-        expand(
-            join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
-            name=samples,
-        ),
+        join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
         # FLAIR Quantify, known/novel isoform quantification
         # @imported from `rule flair_quantify` in rules/quant.smk
-        expand(
-            join(workpath, "project", "counts", "novel", "flair.counts_matrix.tsv"),
-            name=samples,
-        ),
+        join(workpath, "project", "counts", "novel", "flair.transcripts.counts.tsv"),
+        join(workpath, "project", "counts", "novel", "flair.transcripts.tpm.tsv"),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),

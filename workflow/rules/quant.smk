@@ -206,16 +206,17 @@ rule flair_quantify:
             name=samples
         ),
         fa  = join(workpath, "project", "counts", "novel", "flair.isoforms.fa"),
-        bed  = join(workpath, "project", "counts", "novel", "flair.isoforms.bed"),
+        bed = join(workpath, "project", "counts", "novel", "flair.isoforms.bed"),
     output:
         manifest = join(workpath, "project", "counts", "novel", "flair.sample_manifest.tsv"),
-        counts = join(workpath, "project", "counts", "novel", "flair.counts_matrix.tsv"),
+        counts = join(workpath, "project", "counts", "novel", "flair.transcripts.counts.tsv"),
+        tpm    = join(workpath, "project", "counts", "novel", "flair.transcripts.tpm.tsv"),
     params:
-        rname  = "flairquant",
-        prefix = join(workpath, "project", "counts", "novel", "flair.counts_matrix"),
-        tmpdir = join(workpath, "project", "counts", "novel", "flair_tmp"),
+        rname   = "flairquant",
+        prefix  = join(workpath, "project", "counts", "novel", "flair.transcripts"),
+        tmpdir  = join(workpath, "project", "counts", "novel", "flair_tmp"),
         workdir = join(workpath),
-        groups = config['options']['groups'], 
+        groups  = config['options']['groups'], 
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['flair'], use_singularity)
     threads: int(allocated("threads", "flair_quantify", cluster))
