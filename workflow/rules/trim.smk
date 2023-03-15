@@ -45,7 +45,7 @@ rule setup:
          # create a symlink if already merged
         prefix = lambda w: "cat" 
             if samples2barcodes[w.name] 
-            else "ln -rsf",
+            else "ln -sf",
         suffix = lambda w: ">" 
             if samples2barcodes[w.name] 
             else "",
