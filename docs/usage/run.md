@@ -5,7 +5,7 @@ The `modr` executable is composed of several inter-related sub commands. Please 
 
 This part of the documentation describes options and concepts for <code>modr <b>run</b></code> sub command in more detail. With minimal configuration, the **`run`** sub command enables you to start running modr pipeline. 
 
-Setting up the modr pipeline is fast and easy! In its most basic form, <code>modr <b>run</b></code> only has *three required inputs*.
+Setting up the modr pipeline is fast and easy! In its most basic form, <code>modr <b>run</b></code> only has *four required inputs*.
 
 ## 2. Synopsis
 ```text
@@ -16,13 +16,14 @@ $ modr run [--help] \
       [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \
       [--quality-filter QUALITY_FILTER] \
       --genome {hg38_41, mm10_M25, mm39_M31} \
+      --groups GROUPS \
       --input INPUT [INPUT ...] \
       --output OUTPUT
 ```
 
 The synopsis for each command shows its arguments and their usage. Optional arguments are shown in square brackets.
 
-A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, and a reference genome via the `--genome` argument.
+A user **must** provide a list of FastQ (globbing is supported) to analyze via `--input` argument, an output directory to store results via `--output` argument, a reference genome via the `--genome` argument, and a groups file containing additional sample metadata via the `--groups` argument.
 
 Use you can always use the `-h` option for information on a specific command. 
 
@@ -54,6 +55,30 @@ Each of the following arguments are required. Failure to provide a required argu
 >   
 > This option defines the reference genome of the samples. modr does comes bundled with pre-built reference files from GENCODE for human and mouse samples. Please select from one of the following options: `hg38_41`, `mm10_M25`, `mm39_M31`. Please note that `hg38_41` is a human reference genome, while `mm10_M25` and `mm39_M31` are two different reference genomes available for mouse.
 > ***Example:*** `Example: --genome hg38_41`
+
+---  
+  `--groups GROUPS`
+> **Groups file.**   
+> *type: file*
+>   
+> This tab-delimited (TSV) file is used to collect additional metadata that is required to run the pipeline. This file consists of three columns containing  the names of each sample, the path to the sample's fast5 directory, and the name of a group a sample is assoicated with. Each of these fields is required! The first column should contain the base name of a given sample. The base name of a given sample can be determined by removing its file extension from the sample's FastQ file, for example: `WT_S4.fastq.gz` becomes `WT_S4` in the groups file. Here is an example base name of a multiplexed sample. 
+> 
+> Given:
+> `WT_S2_1.fastq.gz`, `WT_S2_2.fastq.gz`, `WT_S2_3.fastq.gz`
+> The base name would be `WT_S2`.
+>
+> The second column should contain the path to the sample's fast5 directory. The fast5 directory contains HDF5 files which couple sequencing information with raw event signal from the ONT sequencer. The raw signal information is used to infer RNA modifcation. As so, the pipeline needs access to both the FastQ files and their fast5 files. The third, and last column, contains group information for each sample. A user can set their own groups. A group can represent anything from a timepoint, to a experimental condition, to a treatment, etc. Please note that groups are composed of alphanumeric characters, cannot startwith a number, and cannot contain any `-` characters. Groups can contain `_` character.
+>
+> *Contents of example groups file:*
+> ```
+> WT_S1	.tests/WT_S1/fast5/	T1
+> WT_S2	.tests/WT_S2/fast5/	T1
+> WT_S3	.tests/WT_S3/fast5/	T2
+> WT_S4	.tests/WT_S4/fast5/	T2
+> WT_S5	.tests/WT_S5/fast5/	T2
+> ```
+
+> ***Example:*** `Example: --groups .tests/groups.tsv`
 
 ### 2.2 Analysis options
 
@@ -195,6 +220,7 @@ module load singularity snakemake
 ./modr run --input .tests/*.fastq.gz \
            --output /data/$USER/output \
            --genome hg38_41 \
+           --groups .tests/groups.tsv \
            --mode slurm \
            --dry-run
 
@@ -205,5 +231,6 @@ module load singularity snakemake
 ./modr run --input .tests/*.fastq.gz \
            --output /data/$USER/output \
            --genome hg38_41 \
+           --groups .tests/groups.tsv \
            --mode slurm
 ```
