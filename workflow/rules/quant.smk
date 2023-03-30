@@ -176,6 +176,7 @@ rule flair_collapse:
         --annotation_reliant generate \\
         --check_splice \\
         --stringent \\
+        --support 1 \\
         --reads {input.reads} \\
         --query {output.merged} \\
         --output {params.prefix}
