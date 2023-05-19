@@ -111,5 +111,10 @@
         "threads": "12",
         "mem": "24g",
         "time": "0-08:00:00"
+    },
+    "nanopolish_polya": {
+        "threads": "16",
+        "mem": "32g",
+        "time": "1-00:00:00"
     }
 }
