@@ -22,8 +22,8 @@ rule nanopolish_polya:
         polya = join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.tsv"),
     params:
         rname   = "nanopolya",
-    conda: depending(join(workpath, config['conda']['modr']), use_conda)
-    container: depending(config['images']['modr'], use_singularity)
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
     threads: int(allocated("threads", "nanopolish_polya", cluster))
     shell: """
     # Estimate polyA tail lengths
