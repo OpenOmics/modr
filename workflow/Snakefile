@@ -236,8 +236,14 @@ rule all:
         # @imported from `rule flair_quantify` in rules/quant.smk
         join(workpath, "project", "counts", "novel", "flair.transcripts.counts.tsv"),
         join(workpath, "project", "counts", "novel", "flair.transcripts.tpm.tsv"),
-        # Nanopolish polyA tail length estimation
+        # Nanopolish polyA tail length estimation,
+        # needs index to map basecalled reads to
+        # raw signal from the ONT sequencer
         # @imported from `rule nanopolish_polya` in rules/polya.smk
+        expand(
+            join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz.index"),
+            name=samples,
+        ),
         expand(
             join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.tsv"),
             name=samples,
