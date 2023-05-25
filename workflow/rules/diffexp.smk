@@ -36,9 +36,9 @@ rule flair_diffexp:
     # expression and find differential
     # isoform usage
     flair diffExp \\
-        --threads {threads}
+        --threads {threads} \\
         --counts_matrix {input.counts} \\
-        --out_dir {params.outdir}
+        --out_dir {params.outdir} \\
         --exp_thresh 10 \\
         --out_dir_force
     """
