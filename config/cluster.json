@@ -126,5 +126,10 @@
         "threads": "8",
         "mem": "16g",
         "time": "0-06:00:00"
+    },
+    "flair_altsplice": {
+        "threads": "8",
+        "mem": "16g",
+        "time": "0-06:00:00"
     }
 }
