@@ -55,10 +55,19 @@ hash_to_fast5 = {
     h:f5 for f5,h in fast5_to_hash.items()
 }
 
+# Analysis options
 # Nanofilt read average quality score filter
 quality_filter = int(
     config['options']['quality_filter']
 ) # Default: 8
+# Call specific RNA-editing types
+call_editing_type = lambda edit, edit_types: True \
+    if edit in edit_types else False
+rna_editing_types = config['options']['rna_editing']  # Default: []
+call_a_i_editing = call_editing_type(
+    'a-i',
+    rna_editing_types
+) # Default: False
 
 # Determines if Conda or Singularity
 # are used for software dependencies
@@ -165,49 +174,55 @@ rule all:
         # @imported from `rule nanocount` in rules/quant.smk
         join(workpath, "project", "counts", "known", "nanocount.transcripts.counts.tsv"),
         join(workpath, "project", "counts", "known", "nanocount.transcripts.tpm.tsv"),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Align to reference genome with Graphmap2
         # @imported from `rule dinopore_graphmap2` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.sorted.bam"), 
-            name=samples
+            name=provided(samples, call_a_i_editing)
         ),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Align nanopore event signals to ref k-mers
         # @imported from `rule dinopore_nanopolish` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.txt"), 
-            name=samples
+            name=provided(samples, call_a_i_editing)
         ),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Convert SAM to filtered TSV file 
         # @imported from `rule dinopore_sam2tsv` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.raw_features.tsv"),
-            name=samples
+            name=provided(samples, call_a_i_editing)
         ),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Combine nanopolish event-level signal 
         # @imported from `rule dinopore_combine_events` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "{name}", "rna-editing", "dinopore", "{name}.nanopolish.eventAlignOut.combined.txt"),
-            name=samples
+            name=provided(samples, call_a_i_editing)
         ),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Generate raw feature table
         # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "project", "rna-editing", "dinopore", "{name}.sam2tsv_nanopolish_grp_{group}.txt"),
             zip,
-            name=samples,
-            group=groups
+            name=provided(samples, call_a_i_editing),
+            group=provided(groups, call_a_i_editing)
         ),
-        # DInoPORE I-to-A RNA-editing rule
+        # DInoPORE I-to-A RNA-editing rule,
+        # Optional runs if `--rna-editing A-I`,
         # Generate group aggregated feature table
         # @imported from `rule dinopore_feature_table` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "project", "rna-editing", "dinopore", "{group}.aggr.10bin.inML.txt"),
-            group=groups
+            group=provided(groups, call_a_i_editing)
         ),
         # DInoPORE I-to-A RNA-editing rule
         # Pre-processing aggreagated feature table
@@ -215,13 +230,14 @@ rule all:
         # @imported from `rule dinopore_transform` in rules/editing_a-to-i.smk
         expand(
             join(workpath, "project", "rna-editing", "dinopore", "{group}.input_CNN_regression_modelgen.RData"),
-            group=groups
+            group=provided(groups, call_a_i_editing)
         ),
         # DInoPORE I-to-A RNA-editing rule
         # Predict A-to-I RNA-editing rate
         # @imported from `rule dinopore_predict` in rules/editing_a-to-i.smk
         expand(
-            join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class0.txt"),            group=groups
+            join(workpath, "project", "rna-editing", "dinopore", "{group}.output_prediction_CNN_class0.txt"),
+            group=provided(groups, call_a_i_editing)
         ),
         # FLAIR Correct, known/novel isoform quantification
         # @imported from `rule flair_correct` in rules/quant.smk

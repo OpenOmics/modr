@@ -459,6 +459,7 @@ def parsed_arguments(name, description):
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
                 [--quality-filter QUALITY_FILTER] \\
+                [--rna-editing {{A-I, ...}}] \\
                 --genome {{hg38_41, mm10_M25, mm39_M31}} \\
                 --groups GROUPS \\
                 --input INPUT [INPUT ...] \\
@@ -537,6 +538,17 @@ def parsed_arguments(name, description):
                                 Filter reads on a minimum average quality score. The 
                                 default average minimum quality filter is set to 8.
                                   Example: --quality-filter 8
+          --rna-editing {{A-I, ...}}
+                                Type of RNA editing or RNA modifications to identify.
+                                RNA editing have been show to affect the function and
+                                stability of RNA molecules. This option allow a user
+                                to define the type of RNA editing sites to identify. 
+                                The pipeline currently supports the following types 
+                                of RNA editing, more coming soon:
+                                   • A-I: A common type of RNA editing catalysed by
+                                by double-stranded RNA (dsRNA)-specific adenosine 
+                                deaminase (ADAR) enzymes.
+                                  --rna-editing A-I
 
         {3}{4}Orchestration options:{5}
           --mode {{slurm,local}}  
@@ -707,13 +719,25 @@ def parsed_arguments(name, description):
         help = argparse.SUPPRESS
     )
 
-    # Analysis Arguments
+    # Analysis Options
     # Minimum average read quality filter 
     subparser_run.add_argument(
         '--quality-filter',
         type = int,
         required = False,
         default = 8,
+        help = argparse.SUPPRESS
+    )
+
+    # Identify a specific type
+    # of RNA-editing/modification 
+    subparser_run.add_argument(
+        '--rna-editing',
+        type = lambda option : option.lower(),
+        required = False,
+        choices = ['a-i'],
+        default = [],
+        nargs = '+',
         help = argparse.SUPPRESS
     )
 
