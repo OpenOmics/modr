@@ -101,8 +101,10 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > RNA editing has been show to affect the function and stability of RNA molecules. This option allow a user to define the type of RNA editing sites to identify. 
 >
-> The pipeline can currently identify the following types of RNA editing (more coming soon!):
-> - **A-I**: A common type of RNA editing catalysed by double-stranded RNA (dsRNA)-specific adenosine deaminase (ADAR) enzymes.
+> The pipeline can currently identify the following types of RNA editing (more coming soon!):  
+
+> - **A-I**: A common type of RNA editing catalysed by double-stranded RNA (dsRNA)-specific adenosine deaminase (ADAR) enzymes.  
+
 > 
 > ***Example:*** `--rna-editing A-I`
 
