@@ -15,6 +15,7 @@ $ modr run [--help] \
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \
       [--quality-filter QUALITY_FILTER] \
+      [--rna-editing {A-I, ...}] \
       --genome {hg38_41, mm10_M25, mm39_M31} \
       --groups GROUPS \
       --input INPUT [INPUT ...] \
@@ -92,6 +93,18 @@ Each of the following arguments are optional, and do not need to be provided.
 > This option filters reads on a minimum average quality score. Any reads with an average minimum quality score less than this threshold will be removed. The default average minimum quality filter is set to 8.
 > 
 > ***Example:*** `--quality-filter 10`
+
+  `--rna-editing {A-I, ...}`  
+> **Type of RNA editing or RNA modifications to identify.**  
+> *type: str*
+> *default: None*
+> 
+> RNA editing has been show to affect the function and stability of RNA molecules. This option allow a user to define the type of RNA editing sites to identify. 
+>
+> The pipeline can currently identify the following types of RNA editing (more coming soon!):
+> - **A-I**: A common type of RNA editing catalysed by double-stranded RNA (dsRNA)-specific adenosine deaminase (ADAR) enzymes.
+> 
+> ***Example:*** `--rna-editing A-I`
 
 ### 2.3 Orchestration options
 
