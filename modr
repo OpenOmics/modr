@@ -540,12 +540,12 @@ def parsed_arguments(name, description):
                                   Example: --quality-filter 8
           --rna-editing {{A-I, ...}}
                                 Type of RNA editing or RNA modifications to identify.
-                                RNA editing have been show to affect the function and
+                                RNA editing has been show to affect the function and
                                 stability of RNA molecules. This option allow a user
                                 to define the type of RNA editing sites to identify. 
                                 The pipeline currently supports the following types 
                                 of RNA editing, more coming soon:
-                                   • A-I: A common type of RNA editing catalysed by
+                                   • A-I: A common type of RNA editing catalysed
                                 by double-stranded RNA (dsRNA)-specific adenosine 
                                 deaminase (ADAR) enzymes.
                                   --rna-editing A-I
