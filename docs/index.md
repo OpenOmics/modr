@@ -2,7 +2,7 @@
 
   <h1 style="font-size: 250%">modr 🔬</h1>
 
-  <b><i>RNA modification Pipeline for ONT direct RNA-sequencing</i></b><br>
+  <b><i>An Oxford Nanopore direct RNA-sequencing Pipeline</i></b><br>
   <a href="https://hub.docker.com/repository/docker/skchronicles/dinopore">
     <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/skchronicles/dinopore">
   </a>
@@ -20,7 +20,7 @@
   </a>
 
   <p>
-    This is the home of the pipeline, modr. Its long-term goals: to detect RNA modifications in Oxford Nanopore direct RNA-sequencing data like no pipeline before!
+    This is the home of the pipeline, modr. Its long-term goals: to accurately estimate known and novel transcript expression, to predict poly-A tail lengths, and to detect RNA modifications in Oxford Nanopore direct RNA-sequencing data like no pipeline before!
   </p>
 
 </div>  
@@ -60,9 +60,9 @@ The **`./modr`** pipeline is composed several inter-related sub commands to setu
 
 </section>
 
-**modr** is a pipeline to detect RNA modifications in Oxford Nanopore direct RNA sequencing data. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
+**modr** is an awesome pipeline to detect known/novel transcript expression, poly-A tail lengths, and RNA-editing in Oxford Nanopore direct RNA sequencing data. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
 
-The pipeline is compatible with direct RNA-sequencing data generated from [Oxford Nanopore sequencing Technologies](https://nanoporetech.com/). As input, it accepts a set of gzipped FastQ files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users.
+The pipeline is compatible with direct RNA-sequencing data generated from [Oxford Nanopore sequencing Technologies](https://nanoporetech.com/). As input, it accepts a set of FastQ & Fast5 files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users.
 
 Before getting started, we highly recommend reading through the [usage](usage/run.md) section of each available sub command.
 

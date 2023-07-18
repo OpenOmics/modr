@@ -2,12 +2,12 @@
    
   <h1>modr 🔬</h1>
   
-  **_An Oxford Nanopore RNA modification Pipeline_**
+  **_An Oxford Nanopore direct RNA-sequencing Pipeline_**
 
   [![Docker Pulls](https://img.shields.io/docker/pulls/skchronicles/dinopore)](https://hub.docker.com/repository/docker/skchronicles/dinopore) [![tests](https://github.com/OpenOmics/modr/workflows/tests/badge.svg)](https://github.com/OpenOmics/modr/actions/workflows/main.yaml) [![docs](https://github.com/OpenOmics/modr/workflows/docs/badge.svg)](https://github.com/OpenOmics/modr/actions/workflows/docs.yml) [![GitHub issues](https://img.shields.io/github/issues/OpenOmics/modr?color=brightgreen)](https://github.com/OpenOmics/modr/issues)  [![GitHub license](https://img.shields.io/github/license/OpenOmics/modr)](https://github.com/OpenOmics/modr/blob/main/LICENSE) 
   
   <i>
-    This is the home of the pipeline, modr. Its long-term goals: to detect RNA modifications in Oxford Nanopore direct RNA-sequencing data like no pipeline before!
+    This is the home of the pipeline, modr. Its long-term goals: to accurately estimate known and novel transcript expression, to predict poly-A tail lengths, and to detect RNA modifications in Oxford Nanopore direct RNA-sequencing data like no pipeline before!
   </i>
 </div>
 
@@ -21,9 +21,9 @@ The **`./modr`** pipeline is composed several inter-related sub commands to setu
  * [<code>modr <b>install</b></code>](https://openomics.github.io/modr/usage/install/): Download reference files locally.
  * [<code>modr <b>cache</b></code>](https://openomics.github.io/modr/usage/cache/): Cache software containers locally.
 
-**modr** is a pipeline to detect loci containing RNA modifications in Oxford Nanopore direct RNA sequencing data. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
+**modr** is an awesome pipeline to detect known/novel transcript expression, poly-A tail lengths, and RNA-editing in Oxford Nanopore direct RNA sequencing data. It relies on technologies like [Singularity<sup>1</sup>](https://singularity.lbl.gov/) to maintain the highest-level of reproducibility. The pipeline consists of a series of data processing and quality-control steps orchestrated by [Snakemake<sup>2</sup>](https://snakemake.readthedocs.io/en/stable/), a flexible and scalable workflow management system, to submit jobs to a cluster.
 
-The pipeline is compatible with data generated from [Nanopore sequencing technologies](https://nanoporetech.com/). As input, it accepts a set of FastQ files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users.
+The pipeline is compatible with data generated from [Nanopore sequencing technologies](https://nanoporetech.com/). As input, it accepts a set of FastQ & Fast5 files and can be run locally on a compute instance or on-premise using a cluster. A user can define the method or mode of execution. The pipeline can submit jobs to a cluster using a job scheduler like SLURM (more coming soon!). A hybrid approach ensures the pipeline is accessible to all users.
 
 Before getting started, we highly recommend reading through the [usage](https://openomics.github.io/modr/usage/run/) section of each available sub command.
 
