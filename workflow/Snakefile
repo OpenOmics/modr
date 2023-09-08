@@ -304,7 +304,7 @@ rule all:
             grp2=flair_group2,
         ),
         # Differential alternative splicing analysis,
-        # @imported from `rule flair_diffexp` in rules/altsplice.smk
+        # @imported from `rule flair_altsplice` in rules/altsplice.smk
         expand(
             join(workpath, "project", "diffsplice", "{grp1}_v_{grp2}", "diffsplice.alt3.events.quant.tsv"),
             zip,
