@@ -27,7 +27,7 @@ in any work or product based on this material.
 USAGE:
   $ modr <command> [OPTIONS]
 EXAMPLE:
-  $ modr run --input *.fastq.gz --output output/
+  $ modr run -h
 """
 
 # Python standard library
@@ -43,6 +43,7 @@ from src import version
 from src.run import init, setup, bind, dryrun, runner
 from src.download import main as installer
 from src.shells import bash 
+from src.files import contrasts
 from src.utils import (
     Colors,
     cat,
@@ -195,6 +196,17 @@ def run(sub_args):
             )
             err("List of lines containing missing fields:\n{}".format(col_missing))
             fatal("Please update your groups file to each of the required fields.")
+    
+    # Parse out contrast information
+    # and check if the defined groups 
+    # exist in groups file
+    config['contrasts'] = []
+    if sub_args.contrasts:
+        # Add contrast information to config.json
+        user_defined_groups = list(config['groups'].keys())
+        comparsions = contrasts(sub_args.contrasts, user_defined_groups)
+        config['contrasts'] = comparsions
+
 
     # Create a dictionary mapping
     # each fast5 path to its list
@@ -458,7 +470,7 @@ def parsed_arguments(name, description):
                 [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \\
                 [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \\
                 [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \\
-                [--quality-filter QUALITY_FILTER] \\
+                [--contrasts CONTRASTS] [--quality-filter QUALITY_FILTER] \\
                 [--rna-editing {{A-I, ...}}] \\
                 --genome {{hg38_41, mm10_M25, mm39_M31}} \\
                 --groups GROUPS \\
@@ -534,6 +546,17 @@ def parsed_arguments(name, description):
                                 Example: --groups .tests/groups.tsv
 
         {3}{4}Analysis options:{5}
+          --contrasts CONTRASTS 
+                                Contrasts file. This tab delimited file is used to setup
+                                comparisons between different sets of groups. Please see
+                                the --groups option for more information about how to de-
+                                fine groups within a set of samples. This file consists
+                                of two columns containing the names of each group to com-
+                                pare. The names defined in this file must also exist in 
+                                the groups file.
+                                  Contents of example contrasts file:
+                                    T2  T1
+                                Example: --contrasts .tests/contrasts.tsv 
           --quality-filter QUALITY_FILTER
                                 Filter reads on a minimum average quality score. The 
                                 default average minimum quality filter is set to 8.
@@ -716,6 +739,16 @@ def parsed_arguments(name, description):
         # Check if the file exists and if it is readable
         type = lambda file: os.path.abspath(permissions(parser, file, os.R_OK)),
         required = True,
+        help = argparse.SUPPRESS
+    )
+
+    # Comparisons TSV file
+    subparser_run.add_argument(
+        '--contrasts',
+        # Check if the file exists and if it is readable
+        type = lambda file: os.path.abspath(permissions(parser, file, os.R_OK)),
+        required = False,
+        default = None,
         help = argparse.SUPPRESS
     )
 
