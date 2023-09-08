@@ -17,6 +17,7 @@ workpath = config['project']['workpath']       # Pipeline's output directory
 tmpdir   = config['options']['tmp_dir']        # Temporary directory
 samples2barcodes = config['barcodes']          # Samples to demultiplex, `cat` together
 genome = config['options']['genome']           # Reference genome of a set of samples
+contrasts = config['contrasts']                # Differential comparisons, default: []
 
 # Build targets for ref genome 
 # download step from GENCODE,
@@ -54,6 +55,13 @@ f5_hashes = list(fast5_to_hash.values())
 hash_to_fast5 = {
     h:f5 for f5,h in fast5_to_hash.items()
 }
+
+# Differential comparison groups,
+# group names cannot contain under-
+# scores due to flairs diff modules,
+# parses group info from sample name
+flair_group1 = [c[0].replace("_", "") for c in contrasts]
+flair_group2 = [c[1].replace("_", "") for c in contrasts]
 
 # Analysis options
 # Nanofilt read average quality score filter
@@ -264,6 +272,45 @@ rule all:
             join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.tsv"),
             name=samples,
         ),
+        # Differential analyses results,
+        # @imported from `rule flair_diffexp` in rules/diffexp.smk
+        # Subset counts matrix for each 
+        # comparison of interest 
+        expand(
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "genes_deseq2_{grp1}_v_{grp2}.tsv"),
+            zip,
+            grp1=flair_group1,
+            grp2=flair_group2,
+        ),
+        # Differential genes expression analysis (DGE)
+        expand(
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "genes_deseq2_{grp1}_v_{grp2}.tsv"),
+            zip,
+            grp1=flair_group1,
+            grp2=flair_group2,
+        ),
+        # Differential isoform expression analysis (DIE/DTE)
+        expand(
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_deseq2_{grp1}_v_{grp2}.tsv"),
+            zip,
+            grp1=flair_group1,
+            grp2=flair_group2,
+        ),
+        # Differential isoform usage analysis (DIU/DTU)
+        expand(
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_drimseq_{grp1}_v_{grp2}.tsv"),
+            zip,
+            grp1=flair_group1,
+            grp2=flair_group2,
+        ),
+        # Differential alternative splicing analysis,
+        # @imported from `rule flair_diffexp` in rules/altsplice.smk
+        expand(
+            join(workpath, "project", "diffsplice", "{grp1}_v_{grp2}", "diffsplice.alt3.events.quant.tsv"),
+            zip,
+            grp1=flair_group1,
+            grp2=flair_group2,
+        ),
         # MultiQC to aggregate results into a report
         # @imported from `rule multiqc` in rules/qc.smk
         join(workpath, "reports", "multiqc_report.html"),
@@ -278,3 +325,5 @@ include: join("rules", "map.smk")
 include: join("rules", "quant.smk")
 include: join("rules", "editing_a-to-i.smk")
 include: join("rules", "polya.smk")
+include: join("rules", "diffexp.smk")
+include: join("rules", "altsplice.smk")
