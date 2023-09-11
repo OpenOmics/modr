@@ -1,6 +1,6 @@
 # Python standard library
 from os.path import join
-import os, sys
+import os, sys, json
 
 # Local imports
 from scripts.common import (

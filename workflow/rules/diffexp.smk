@@ -60,7 +60,7 @@ rule flair_diffexp:
     # Create per-contrast counts matrix,
     # extracts samples by their col name
     {params.script} -c ${{grp1_samples}} ${{grp2_samples}} \\
-        -i {{input.counts}} \\
+        -i {input.counts} \\
     > {output.counts}
 
     # Find differential gene/isoform 
