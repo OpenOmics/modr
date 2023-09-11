@@ -145,7 +145,9 @@ rule nanoplot:
     NanoPlot \\
         -t {threads} \\
         --bam {input.bam} \\
-        -o {params.outdir}
+        -o {params.outdir} \\
+        --no_static \\
+        --verbose
     """
 
 
