@@ -59,7 +59,7 @@ rule flair_diffexp:
     )
     # Create per-contrast counts matrix,
     # extracts samples by their col name
-    {params.script} -c ${{grp1_samples}} ${{grp2_samples}} \\
+    {params.script} -c ids ${{grp1_samples}} ${{grp2_samples}} \\
         -i {input.counts} \\
     > {output.counts}
 
