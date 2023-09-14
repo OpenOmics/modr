@@ -141,7 +141,7 @@ RUN cpanm FindBin Term::ReadLine
 # version of GCC that allowed multiple
 # definitions of global variables.
 # We are using GCC/10, which does not
-# allow multiple definitations. Adding
+# allow multiple definitions. Adding
 # -Wl,--allow-multiple-definition
 # to the linker to fix this issue.
 RUN mkdir -p /opt2/desalt/1.5.6/ \
@@ -190,8 +190,40 @@ RUN pip3 install --upgrade pip \
     && pip3 install scipy \
     && pip3 install ultra-bioinformatics
 
-# !TODO: Install cDNA_Cupcake from Github
-# And install R packages, and finally
+# Installing the second to latest release
+# of cDNA_cupcake (v28.0.0). The latest 
+# version of the tool has remove/depreciated
+# some modules/scripts that overlap with 
+# PacBio's Iso-seq software. Using this 
+# version to ensure everything we may need
+# will be installed.
+RUN mkdir -p /opt2/cdna_cupcake/28.0.0/ \
+    && wget https://github.com/Magdoll/cDNA_Cupcake/archive/refs/tags/v28.0.0.tar.gz -O /opt2/cdna_cupcake/28.0.0/v28.0.0.tar.gz \
+    && tar -zvxf /opt2/cdna_cupcake/28.0.0/v28.0.0.tar.gz -C /opt2/cdna_cupcake/28.0.0/ \
+    && rm -f /opt2/cdna_cupcake/28.0.0/v28.0.0.tar.gz \
+    && cd /opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0 \
+    # Patch: some pyx files contain python2,
+    # need to specify the langauage_level as
+    # py2 otherwise it defaults to py3.
+    && sed -i 's/cythonize(ext_modules)/cythonize(ext_modules, language_level = "2")/' setup.py \
+    # sklearn is depreciated, use scikit-learn instead
+    && sed -i 's/sklearn/scikit-learn/' setup.py \
+    # numpy, np.int is depreciated, use np.int_ instead:
+    # https://numpy.org/devdocs/release/1.20.0-notes.html#deprecations
+    && find /opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0 \
+        -type f -exec grep 'np\.int' {} /dev/null \; 2> /dev/null \
+        # Builds cmd: sed -i 's/np\.int\(\s\|$\)/np.int_/g' FILE_TO_FIX
+        | awk -F ':' -v q="'" -v b='\\' '{print "sed -i", q"s/np"b".int"b"("b"s"b"|$"b")/np.int_/g"q,$1}' \
+        | sort \
+        | uniq \
+        | bash \
+    && python setup.py build \
+    && python setup.py install
+
+ENV PATH="${PATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
+WORKDIR /opt2
+
+# !TODO: Install R packages, and finally
 # install SQANTI3/v5.1.2
 
 
