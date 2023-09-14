@@ -47,7 +47,7 @@ FROM ubuntu:22.04
 #     @requires: stringr       # from CRAN
 #     @requires: tibble        # from CRAN
 #     @requires: tidyr         # from CRAN
-#  -+ python>3.7                # apt-get, installs: 3.10.6-1
+#  -+ python>3.7                # apt-get, installs: 3.10.12
 #     @requires: bx-python      # pip install from pypi
 #     @requires: biopython      # pip install from pypi
 #     @requires: bcbio-gff      # pip install from pypi 
@@ -223,14 +223,74 @@ RUN mkdir -p /opt2/cdna_cupcake/28.0.0/ \
 ENV PATH="${PATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
 WORKDIR /opt2
 
-# !TODO: Install R packages, and finally
-# install SQANTI3/v5.1.2
+# Install R packages via apt 
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        # CRAN R packages
+        r-cran-biocmanager \
+        r-cran-caret \
+        r-cran-dplyr \
+        r-cran-dt \
+        r-cran-devtools \
+        r-cran-e1071 \
+        r-cran-forcats \
+        r-cran-ggplot2 \
+        r-cran-gridbase \
+        r-cran-gridextra \
+        r-cran-htmltools \
+        r-cran-jsonlite \
+        r-cran-optparse \
+        r-cran-plotly \
+        r-cran-plyr \
+        r-cran-proc \
+        r-cran-purrr \
+        r-cran-rmarkdown \
+        r-cran-reshape \
+        r-cran-readr \
+        r-cran-randomforest \
+        r-cran-scales \
+        r-cran-stringi \
+        r-cran-stringr \
+        r-cran-tibble \
+        r-cran-tidyr \
+        # Bioconductor
+        r-bioc-noiseq \
+    && apt-get clean && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install R packages manually,
+# missing from apt: 
+#  - r-bioc-busparse
+#  - r-cran-ggplotify
+# CRAN packages 
+RUN Rscript -e 'install.packages(c("ggplotify"), repos="http://cran.r-project.org")'
+# Bioconductor packages
+RUN Rscript -e 'BiocManager::install(c("BUSpaRse"), update = FALSE, Ncpus = 4)' 
+
+########### SQANTI3/v5.1.2 ############
+# Installs SQANTI3/v5.1.2, dependencies
+# and requirements have already been
+# satisfied, for more info see:
+# https://github.com/ConesaLab/SQANTI3
+RUN mkdir -p /opt2/sqanti3/5.1.2/ \
+    && wget https://github.com/ConesaLab/SQANTI3/archive/refs/tags/v5.1.2.tar.gz -O /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
+    && tar -zvxf /opt2/sqanti3/5.1.2/v5.1.2.tar.gz -C /opt2/sqanti3/5.1.2/ \
+    && rm -f /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
+    && chmod -x \
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/LICENSE \
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/.gitignore \
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.md \ 
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.yml
+
+ENV PATH="${PATH}:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities"
+WORKDIR /opt2
 
 
 ################ POST #################
 # Add Dockerfile and export environment 
 # variables and update permissions
-ADD Dockerfile /opt2/sqanti3.dockerfile
+ADD Dockerfile /opt2/sqanti3_5-1-2.dockerfile
 RUN chmod -R a+rX /opt2
 ENV PATH="/opt2:$PATH"
 WORKDIR /data2
