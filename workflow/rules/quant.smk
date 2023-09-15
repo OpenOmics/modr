@@ -124,7 +124,7 @@ rule flair_collapse:
     be concatenated prior to running flair-collapse. 
     Github: https://github.com/BrooksLabUCSC/flair
     @Input:
-        FLAIR Correct Genomic Alignments in BED12 (scatter)
+        FLAIR Correct Genomic Alignments in BED12 (gather)
     @Output:
         High-confidence Isoforms (BED),
         High-confidence Isoforms (GTF),
