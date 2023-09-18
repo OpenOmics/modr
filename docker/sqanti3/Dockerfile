@@ -221,6 +221,7 @@ RUN mkdir -p /opt2/cdna_cupcake/28.0.0/ \
     && python setup.py install
 
 ENV PATH="${PATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
+ENV PYTHONPATH="${PYTHONPATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
 WORKDIR /opt2
 
 # Install R packages via apt 
@@ -293,4 +294,6 @@ WORKDIR /opt2
 ADD Dockerfile /opt2/sqanti3_5-1-2.dockerfile
 RUN chmod -R a+rX /opt2
 ENV PATH="/opt2:$PATH"
+# Hide deprecation warnings from sqanit
+ENV PYTHONWARNINGS="ignore::DeprecationWarning"
 WORKDIR /data2
