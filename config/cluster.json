@@ -132,5 +132,15 @@
         "threads": "8",
         "mem": "16g",
         "time": "0-06:00:00"
+    },
+    "sqanti_qc": {
+        "threads": "16",
+        "mem": "64g",
+        "time": "0-12:00:00"
+    },
+    "sqanti_ml_filter": {
+        "threads": "16",
+        "mem": "64g",
+        "time": "0-12:00:00"
     }
 }
