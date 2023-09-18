@@ -260,6 +260,10 @@ rule all:
         # @imported from `rule flair_quantify` in rules/quant.smk
         join(workpath, "project", "counts", "novel", "flair.transcripts.counts.tsv"),
         join(workpath, "project", "counts", "novel", "flair.transcripts.tpm.tsv"),
+        # SQANTI3 QC, known/novel isoform quantification
+        # Characterize and annotate collapsed transcripts from flair
+        # @imported from `rule sqanti_qc` in rules/sqanti.smk
+        join(workpath, "project", "counts", "novel", "sqanti.isoforms_classification.txt"),
         # Nanopolish polyA tail length estimation,
         # needs index to map basecalled reads to
         # raw signal from the ONT sequencer
@@ -323,6 +327,7 @@ include: join("rules", "trim.smk")
 include: join("rules", "qc.smk")
 include: join("rules", "map.smk")
 include: join("rules", "quant.smk")
+include: join("rules", "sqanti.smk")
 include: join("rules", "editing_a-to-i.smk")
 include: join("rules", "polya.smk")
 include: join("rules", "diffexp.smk")

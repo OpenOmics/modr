@@ -50,10 +50,12 @@ rule sqanti_qc:
     # Structural and quality annotation
     # of collapsed transcript from flair
     sqanti3_qc.py \\
-        {input.fa} {input.gtf} {input.genome} \\
+        {input.fa} \\
+        {input.gtf} \\
+        {input.genome} \\
         --aligner_choice=minimap2 \\
         --cpus {threads} \\
-        --output {params.output} \\
+        --output {params.prefix} \\
         --dir {params.outdir} \\
         --CAGE_peak {params.cage_peak} \\
         --polyA_motif_list {params.polya_motif} \\
@@ -81,4 +83,3 @@ rule sqanti_ml_filter:
         ML Filtered Corrected Annotation (GTF),
         ML Filtered Corrected Transcriptome (FASTA)
     """
-    pass
