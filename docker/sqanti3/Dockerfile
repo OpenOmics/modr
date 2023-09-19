@@ -268,6 +268,10 @@ RUN apt-get update \
 RUN Rscript -e 'install.packages(c("ggplotify"), repos="http://cran.r-project.org")'
 # Bioconductor packages
 RUN Rscript -e 'BiocManager::install(c("BUSpaRse"), update = FALSE, Ncpus = 4)' 
+# Install missing packages, 
+# not listed in sqanti docs,
+# noticed when running ML filter
+RUN Rscript -e 'install.packages(c("RColorConesa"), repos="http://cran.r-project.org")'
 
 ########### SQANTI3/v5.1.2 ############
 # Installs SQANTI3/v5.1.2, dependencies
