@@ -109,3 +109,57 @@ rule sqanti_ml_filter:
         --isoforms {input.fa} \\
         {input.txt}
     """
+
+
+rule sqanti_minimap2:
+    """
+    Data-processing step to align direct RNA reads against filtered, high-
+    confidence annotated transcriptome from SQANTI.
+    @Input:
+        Nanofilt quality filtered FastQ file (scatter),
+        Transcriptomic FASTA file
+    @Output:
+        Transcriptomic BAM file
+    """
+    input:
+        fq  = join(workpath, "{name}", "fastqs", "{name}.filtered.fastq.gz"),
+        ref  = join(workpath, "project", "counts", "novel", "sqanti.isoforms.filtered.fasta"),
+    output:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.sqanti.transcriptome.bam"),
+        bai = join(workpath, "{name}", "bams", "{name}.sorted.sqanti.transcriptome.bam.bai"),
+    params:
+        rname = 'sqanti_minimap2',
+        tmpdir = join(workpath, "{name}", "bams", "sqanti_transcriptome_tmp"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "sqanti_minimap2", cluster)) 
+    shell: 
+        """
+        # Setups temporary directory for
+        # intermediate files with built-in 
+        # mechanism for deletion on exit
+        if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+        tmp=$(mktemp -d -p "{params.tmpdir}")
+        trap 'rm -rf "${{tmp}}"' EXIT
+
+        # Align against reference genome,
+        # minimap2 automatically handles
+        # conversion of U to T bps, See 
+        # this issue for the author of 
+        # minimap2's recomendations for 
+        # aligning direct RNA reads against 
+        # the transcriptome:
+        # https://github.com/lh3/minimap2/issues/340  
+        minimap2 \\
+            -ax map-ont \\
+            -N 10 \\
+            -k10 \\
+            {input.ref} \\
+            {input.fq} \\
+        | samtools sort -@{threads} \\
+            -T "${{tmp}}" \\
+            -O bam \\
+            --write-index \\
+            -o {output.bam}##idx##{output.bai} \\
+            -
+        """
