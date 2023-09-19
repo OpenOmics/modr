@@ -264,6 +264,10 @@ rule all:
         # Characterize and annotate collapsed transcripts from flair
         # @imported from `rule sqanti_qc` in rules/sqanti.smk
         join(workpath, "project", "counts", "novel", "sqanti.isoforms_classification.txt"),
+        # SQANTI3 ML Filter, known/novel isoform quantification
+        # Filters characterized transcripts from Sqanti QC
+        # @imported from `rule sqanti_ml_filter` in rules/sqanti.smk
+        join(workpath, "project", "counts", "novel", "sqanti.isoforms_MLresult_classification.txt"),
         # Nanopolish polyA tail length estimation,
         # needs index to map basecalled reads to
         # raw signal from the ONT sequencer
@@ -332,3 +336,4 @@ include: join("rules", "editing_a-to-i.smk")
 include: join("rules", "polya.smk")
 include: join("rules", "diffexp.smk")
 include: join("rules", "altsplice.smk")
+include: join("rules", "hooks.smk")

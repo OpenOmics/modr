@@ -77,9 +77,35 @@ rule sqanti_ml_filter:
     https://github.com/ConesaLab/SQANTI3/wiki/
     Github: https://github.com/ConesaLab/SQANTI3
     @Input:
-        Sqanti Classification file (TSV) 
-    @Output:
+        Sqanti Classification file (TSV),
+        Corrected Annotation (GTF),
+        Corrected Transcriptome (FASTA)
+    @Input:
         ML Filtered Sqanti Classification file (TSV),
         ML Filtered Corrected Annotation (GTF),
         ML Filtered Corrected Transcriptome (FASTA)
+    """
+    input:
+        txt = join(workpath, "project", "counts", "novel", "sqanti.isoforms_classification.txt"),
+        fa  = join(workpath, "project", "counts", "novel", "sqanti.isoforms_corrected.fasta"),
+        gtf = join(workpath, "project", "counts", "novel", "sqanti.isoforms_corrected.gtf"),
+    output:
+        txt = join(workpath, "project", "counts", "novel", "sqanti.isoforms_MLresult_classification.txt"),
+        fa  = join(workpath, "project", "counts", "novel", "sqanti.isoforms.filtered.fasta"),
+        gtf = join(workpath, "project", "counts", "novel", "sqanti.isoforms.filtered.gtf"),
+    params:
+        rname  = "sqanti_ml_filter",
+        prefix = "sqanti.isoforms",
+        outdir      = join(workpath, "project", "counts", "novel"),
+    container: depending(config['images']['sqanti3'], use_singularity),
+    threads: int(allocated("threads", "sqanti_ml_filter", cluster)),
+    shell: """
+    # Applies ML filter on selected
+    # SQANTI3 QC classification file
+    sqanti3_filter.py ML \\
+        --output {params.prefix} \\
+        --dir {params.outdir} \\
+        --gtf {input.gtf} \\
+        --isoforms {input.fa} \\
+        {input.txt}
     """
