@@ -278,11 +278,23 @@ RUN mkdir -p /opt2/sqanti3/5.1.2/ \
     && wget https://github.com/ConesaLab/SQANTI3/archive/refs/tags/v5.1.2.tar.gz -O /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
     && tar -zvxf /opt2/sqanti3/5.1.2/v5.1.2.tar.gz -C /opt2/sqanti3/5.1.2/ \
     && rm -f /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
+    # Removing exec bit for non-exec files
     && chmod -x \
         /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/LICENSE \
         /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/.gitignore \
         /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.md \ 
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.yml
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.yml \
+    # Patch: adding absolute PATH to howToUse.png
+    # that gets embedded in the report. When running
+    # sqanti_qc.py within docker/singularity container,
+    # it fails at the report generation step because 
+    # pandoc cannot find the png file (due to relative
+    # path). Converting relative path in Rmd files to
+    # an absolute path to avoid this issue altogether.
+    && sed -i \
+        's@src="howToUse.png"@src="/opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_qc/howToUse.png"@g' \
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_qc/SQANTI3_report.Rmd \
+        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_pigeon/pigeon_report.Rmd
 
 ENV PATH="${PATH}:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities"
 WORKDIR /opt2
