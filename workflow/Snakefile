@@ -274,6 +274,20 @@ rule all:
             join(workpath, "{name}", "bams", "{name}.sorted.sqanti.transcriptome.bam"),
             name=samples
         ),
+        # NanoCount to quantify novel isoform counts
+        # these counts are derived from SQANTI-filter
+        # aligned transcriptome.
+        # @imported from `rule sqanti_nanocount` in rules/sqanti.smk
+        expand(
+            join(workpath, "{name}", "counts", "{name}.nanocount.sqanti_filtered.transcripts.tsv"),
+            name=samples
+        ),
+        # NanoCount to quantify novel isoform counts,
+        # these counts are derived from SQANTI-filter
+        # aligned transcriptome.
+        # @imported from `rule sqanti_nanocount_aggregate` in rules/sqanti.smk
+        join(workpath, "project", "counts", "novel", "nanocount.sqanti_filtered.transcripts.counts.tsv"),
+        join(workpath, "project", "counts", "novel", "nanocount.sqanti_filtered.transcripts.tpm.tsv"),
         # Nanopolish polyA tail length estimation,
         # needs index to map basecalled reads to
         # raw signal from the ONT sequencer
@@ -291,28 +305,28 @@ rule all:
         # Subset counts matrix for each 
         # comparison of interest 
         expand(
-            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "genes_deseq2_{grp1}_v_{grp2}.tsv"),
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "flair.transcripts.counts.tsv"),
             zip,
             grp1=flair_group1,
             grp2=flair_group2,
         ),
         # Differential genes expression analysis (DGE)
         expand(
-            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "genes_deseq2_{grp1}_v_{grp2}.tsv"),
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "genes_deseq2_{grp1}_v_{grp2}_results.tsv"),
             zip,
             grp1=flair_group1,
             grp2=flair_group2,
         ),
         # Differential isoform expression analysis (DIE/DTE)
         expand(
-            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_deseq2_{grp1}_v_{grp2}.tsv"),
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "isoforms_deseq2_{grp1}_v_{grp2}_results.tsv"),
             zip,
             grp1=flair_group1,
             grp2=flair_group2,
         ),
         # Differential isoform usage analysis (DIU/DTU)
         expand(
-            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_drimseq_{grp1}_v_{grp2}.tsv"),
+            join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "isoforms_drimseq_{grp1}_v_{grp2}_results.tsv"),
             zip,
             grp1=flair_group1,
             grp2=flair_group2,

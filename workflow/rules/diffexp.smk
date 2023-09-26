@@ -24,9 +24,9 @@ rule flair_diffexp:
         manifest = join(workpath, "project", "counts", "novel", "flair.sample_manifest.tsv"),
     output:
         counts = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "flair.transcripts.counts.tsv"),
-        deg = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "genes_deseq2_{grp1}_v_{grp2}.tsv"),
-        dei = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_deseq2_{grp1}_v_{grp2}.tsv"),
-        diu = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "isoforms_drimseq_{grp1}_v_{grp2}.tsv"),
+        deg = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "genes_deseq2_{grp1}_v_{grp2}_results.tsv"),
+        dei = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "isoforms_deseq2_{grp1}_v_{grp2}_results.tsv"),
+        diu = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}", "workdir", "isoforms_drimseq_{grp1}_v_{grp2}_results.tsv"),
     params:
         rname   = "flairdiffexp",
         outdir  = join(workpath, "project", "diffexp", "{grp1}_v_{grp2}"),
