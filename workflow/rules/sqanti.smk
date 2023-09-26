@@ -103,6 +103,7 @@ rule sqanti_ml_filter:
     # Applies ML filter on selected
     # SQANTI3 QC classification file
     sqanti3_filter.py ML \\
+        --filter_mono_exonic \\
         --output {params.prefix} \\
         --dir {params.outdir} \\
         --gtf {input.gtf} \\
@@ -163,3 +164,78 @@ rule sqanti_minimap2:
             -o {output.bam}##idx##{output.bai} \\
             -
         """
+
+
+rule sqanti_nanocount:
+    """
+    Data-processing step to get known and novel sqanti-aligned transcript counts.
+    For more info, please checkout: https://github.com/a-slide/NanoCount
+    @Input:
+        Sorted SQANTI-aligned Transcriptomic BAM file (scatter)
+    @Output:
+        NanoCount SQANTI-aligned (known/novel) counts file
+    """
+    input:
+        bam = join(workpath, "{name}", "bams", "{name}.sorted.sqanti.transcriptome.bam"),
+    output:
+        counts = join(workpath, "{name}", "counts", "{name}.nanocount.sqanti_filtered.transcripts.tsv"),
+    params:
+        rname   = "sqanti_nanocount",
+        em_iter = config['options']['nanocount_em_iter'],
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "sqanti_nanocount", cluster))
+    shell: """
+    NanoCount \\
+        -i {input.bam} \\
+        --extra_tx_info \\
+        -e {params.em_iter} \\
+        -o {output.counts}
+    """
+
+
+
+rule sqanti_nanocount_aggregate:
+    """
+    Data-processing step to aggreagte per-sample raw and normalized 
+    counts into a counts matrix. This counts matrix was generated via
+    alignment to a SQANTI-filter derived transcriptome. As so, it will
+    contain known/novel transcripts.
+    Github: https://github.com/a-slide/NanoCount
+    @Input:
+        NanoCount SQANTI-aligned (known/novel) counts file (gather)
+    @Output:
+        NanoCount SQANTI-aligned (known/novel) estimated raw counts matrix,
+        NanoCount SQANTI-aligned (known/novel) TPM normalized counts matrix 
+    """
+    input:
+        counts = expand(join(workpath, "{name}", "counts", "{name}.nanocount.sqanti_filtered.transcripts.tsv"), name=samples),
+    output:
+        est_count = join(workpath, "project", "counts", "novel", "nanocount.sqanti_filtered.transcripts.counts.tsv"),
+        tpm = join(workpath, "project", "counts", "novel", "nanocount.sqanti_filtered.transcripts.tpm.tsv"),
+    params:
+        rname   = "sqnati_nanocaggr",
+        script  = join("workflow", "scripts", "create_matrix.py"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "sqanti_nanocount_aggregate", cluster))
+    shell: """
+    # Estimated counts matrix,
+    # raw counts 
+    {params.script} \\
+        --input {input.counts} \\
+        --output {output.est_count} \\
+        --join-on transcript_name \\
+        --extract est_count \\
+        --clean-suffix '.nanocount.sqanti_filtered.transcripts.tsv' \\
+        --nan-values 0.0
+    # TPM counts matrix,
+    # normalized counts
+    {params.script} \\
+        --input {input.counts} \\
+        --output {output.tpm} \\
+        --join-on transcript_name \\
+        --extract tpm \\
+        --clean-suffix '.nanocount.sqanti_filtered.transcripts.tsv' \\
+        --nan-values 0.0
+    """
