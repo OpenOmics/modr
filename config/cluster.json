@@ -151,5 +151,9 @@
     "sqanti_nanocount": {
         "threads": "2",
         "mem": "16g"
+    },
+    "sqanti_nanocount_aggregate": {
+        "threads": "2",
+        "mem": "16g"
     }
 }
