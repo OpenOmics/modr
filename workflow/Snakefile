@@ -300,6 +300,14 @@ rule all:
             join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.tsv"),
             name=samples,
         ),
+        # Filters nanopolish polyA tail estimates
+        # and gets average length for each transcript
+        expand(
+            join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.average.tsv"),
+            name=samples,
+        ),
+        # Matrix of filtered/averaged polyA tail transcript lengths
+        join(workpath, "project", "polyA", "nanopolish.transcripts.average_polyA_length.tsv"),
         # Differential analyses results,
         # @imported from `rule flair_diffexp` in rules/diffexp.smk
         # Subset counts matrix for each 

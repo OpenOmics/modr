@@ -72,3 +72,69 @@ rule nanopolish_polya:
         --genome={input.ref} \\
     > {output.polya}
     """
+
+
+rule nanopolish_polya_filter:
+    """
+    Data-processing step to filter and average the polyA
+    tail length for each transcript. The estimated polyA 
+    tail lengths need to be filtered on the qc_tag, only 
+    keep estimates with the tag 'PASS'.
+    @Input:
+        Nanopolish polyA tail length estimates (scatter)
+    @Output:
+        Filtered/averaged nanopolish polyA tail length estimates
+    """
+    input:
+        polya = join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.tsv"),
+    output:
+        polya = join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.average.tsv"),
+    params:
+        rname   = "filterpolya",
+    conda: depending(join(workpath, config['conda']['dinopore']), use_conda)
+    container: depending(config['images']['dinopore'], use_singularity)
+    threads: int(allocated("threads", "nanopolish_polya_filter", cluster))
+    shell: """
+    # Filter and average polyA tail length
+    # of each transcript
+    echo -e 'id\\tavg_polya_length' > {output.polya} 
+    awk -F '\\t' -v OFS='\\t' 'NR>1 && $NF=="PASS" {{print}}' {input.polya} \\
+        | cut -f2,9 \\
+        | awk -F '\\t' -v OFS='\\t' \\
+            '{{seen[$1]+=$2; count[$1]++}} END {{for (x in seen) print x, seen[x]/count[x]}}' \\
+    >> {output.polya}
+    """
+
+
+rule nanopolish_polya_matrix:
+    """
+    Data-processing step to create a matrix containing
+    the average polyA tail length for each transcript for
+    each sample.
+    @Input:
+        Filtered/averaged nanopolish polyA tail length estimates (gather)
+    @Output:
+        Matrix containing average polyA tail lengths, 
+        for each sample for each transcript (TSV)
+    """
+    input:
+        polyas = expand(join(workpath, "{name}", "polyA", "{name}.nanopolish.transcripts.polyA.average.tsv"), name=samples),
+    output:
+        matrix = join(workpath, "project", "polyA", "nanopolish.transcripts.average_polyA_length.tsv"),
+    params:
+        rname   = "matrixpolya",
+        script  = join("workflow", "scripts", "create_matrix.py"),
+    conda: depending(join(workpath, config['conda']['modr']), use_conda)
+    container: depending(config['images']['modr'], use_singularity)
+    threads: int(allocated("threads", "nanopolish_polya_matrix", cluster))
+    shell: """
+    # Create counts matrix each transcripts
+    # average polyA tail length
+    {params.script} \\
+        --input {input.polyas} \\
+        --output {output.matrix} \\
+        --join-on id \\
+        --extract avg_polya_length \\
+        --clean-suffix '.nanopolish.transcripts.polyA.average.tsv' \\
+        --nan-values 0.00
+    """
