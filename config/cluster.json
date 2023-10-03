@@ -118,6 +118,16 @@
         "mem": "32g",
         "time": "1-00:00:00"
     },
+    "nanopolish_polya_filter": {
+        "threads": "2",
+        "mem": "4g",
+        "time": "0-2:00:00"
+    },
+    "nanopolish_polya_matrix": {
+        "threads": "2",
+        "mem": "16g",
+        "time": "0-4:00:00"
+    },
     "nanopolish_index": {
         "threads": "2",
         "mem": "4g",
