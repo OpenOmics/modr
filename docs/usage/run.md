@@ -14,7 +14,7 @@ $ modr run [--help] \
       [--sif-cache SIF_CACHE] [--singularity-cache SINGULARITY_CACHE] \
       [--silent] [--threads THREADS] [--tmp-dir TMP_DIR] \
       [--resource-bundle RESOURCE_BUNDLE] [--use-conda] \
-      [--quality-filter QUALITY_FILTER] \
+      [--contrasts CONTRASTS] [--quality-filter QUALITY_FILTER] \
       [--rna-editing {A-I, ...}] \
       --genome {hg38_41, mm10_M25, mm39_M31} \
       --groups GROUPS \
@@ -85,6 +85,32 @@ Each of the following arguments are required. Failure to provide a required argu
 
 Each of the following arguments are optional, and do not need to be provided. 
 
+
+  `--contrasts CONTRASTS`
+> **Contrasts file for Differential Analyses.**   
+> *type: file*
+>   
+> This tab-delimited (TSV) file is used to setup comparisons between different sets of groups. These comparsions are used to find differential transcript expression (DTE), differential transcript usage (DTU), and differential alternative splicing (AS) events. Please see the `--groups` option above for more information about how to define groups within a set of samples. The contrasts file consists of two columns containing the names of each group to compare. The names defined in this file must also exist in the groups file.
+> 
+> Given the following groups file:
+> ```
+> WT_S1	.tests/WT_S1/fast5/	T1
+> WT_S2	.tests/WT_S2/fast5/	T1
+> WT_S3	.tests/WT_S3/fast5/	T2
+> WT_S4	.tests/WT_S4/fast5/	T2
+> WT_S5	.tests/WT_S5/fast5/	T2
+> ```
+>
+> Here is an example contrasts file:
+> ```
+> T2	T1
+> ```
+>
+> **Please note:** the order of the groups defined in the contrasts file will determine how to interpret the direction of the fold-change. As so, if we use the `T2	 T1` comparison as an example for interpreting DTE results, a positive fold-change for a given transcript would indicate that the `T2` samples' expression is higher than the `T1` samples' expression. 
+
+> ***Example:*** `Example: --contrasts .tests/contrasts.tsv`
+
+--- 
   `--quality-filter QUALITY_FILTER`  
 > **Quality score filter.**  
 > *type: int*
@@ -94,6 +120,7 @@ Each of the following arguments are optional, and do not need to be provided.
 > 
 > ***Example:*** `--quality-filter 10`
 
+--- 
   `--rna-editing {A-I, ...}`  
 > **Type of RNA editing or RNA modifications to identify.**  
 > *type: str*
@@ -233,7 +260,7 @@ module load singularity snakemake
 
 # Step 2A.) Dry-run the pipeline
 ./modr run --input .tests/*.fastq.gz \
-           --output /data/$USER/output \
+           --output test_01 \
            --genome hg38_41 \
            --groups .tests/groups.tsv \
            --mode slurm \
@@ -244,7 +271,7 @@ module load singularity snakemake
 # the cluster. It is recommended running 
 # the pipeline in this mode.
 ./modr run --input .tests/*.fastq.gz \
-           --output /data/$USER/output \
+           --output test_01 \
            --genome hg38_41 \
            --groups .tests/groups.tsv \
            --mode slurm
