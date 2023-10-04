@@ -24,7 +24,9 @@ jobs:
         /opt2/.tests/WT_S3_1.fastq.gz /opt2/.tests/WT_S3_2.fastq.gz \
         /opt2/.tests/WT_S3_3.fastq.gz /opt2/.tests/WT_S3_4.fastq.gz \
         /opt2/.tests/WT_S4.fastq.gz /opt2/.tests/WT_S5.fastq.gz \
-        --output /opt2/output --genome hg38_41 --groups /opt2/.tests/groups.tsv \
+        --output /opt2/output --genome hg38_41 \
+        --groups /opt2/.tests/groups.tsv \
+        --contrasts /opt2/.tests/contrasts.tsv \
         --mode local --dry-run"
     - name: View the pipeline config file
       run: |
