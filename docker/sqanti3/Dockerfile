@@ -1,4 +1,4 @@
-# Base image for SQANTI3/v5.1.2,
+# Base image for SQANTI3/v5.2.0,
 # uses Ubuntu Jammy (LTS)
 FROM ubuntu:22.04
 
@@ -17,36 +17,36 @@ FROM ubuntu:22.04
 #  -+ gffread                   # apt-get, installs: 0.12.7-2
 #  -+ gmap                      # apt-get, installs: 2021-12-17+ds-1
 #  -+ seqtk                     # apt-get, installs: 1.3-2
-#  -+ R>=3.4                    # apt-get, installs: 4.1.2-1
-#     @requires: noiseq        # from Bioconductor
-#     @requires: busparse      # from Bioconductor
-#     @requires: biocmanager   # from CRAN
-#     @requires: caret         # from CRAN
-#     @requires: dplyr         # from CRAN
-#     @requires: dt            # from CRAN
-#     @requires: devtools      # from CRAN
-#     @requires: e1071         # from CRAN
-#     @requires: forcats       # from CRAN
-#     @requires: ggplot2       # from CRAN
-#     @requires: ggplotify     # from CRAN
-#     @requires: gridbase      # from CRAN
-#     @requires: gridextra     # from CRAN
-#     @requires: htmltools     # from CRAN
-#     @requires: jsonlite      # from CRAN
-#     @requires: optparse      # from CRAN
-#     @requires: plotly        # from CRAN
-#     @requires: plyr          # from CRAN
-#     @requires: pROC          # from CRAN
-#     @requires: purrr         # from CRAN
-#     @requires: rmarkdown     # from CRAN
-#     @requires: reshape       # from CRAN
-#     @requires: readr         # from CRAN
-#     @requires: randomForest  # from CRAN
-#     @requires: scales        # from CRAN
-#     @requires: stringi       # from CRAN
-#     @requires: stringr       # from CRAN
-#     @requires: tibble        # from CRAN
-#     @requires: tidyr         # from CRAN
+#  -+ R>=4.3.X                  # updated apt-get sources list, installs: 4.3.1
+#     @requires: noiseq         # from Bioconductor
+#     @requires: busparse       # from Bioconductor
+#     @requires: biocmanager    # from CRAN
+#     @requires: caret          # from CRAN
+#     @requires: dplyr          # from CRAN
+#     @requires: dt             # from CRAN
+#     @requires: devtools       # from CRAN
+#     @requires: e1071          # from CRAN
+#     @requires: forcats        # from CRAN
+#     @requires: ggplot2        # from CRAN
+#     @requires: ggplotify      # from CRAN
+#     @requires: gridbase       # from CRAN
+#     @requires: gridextra      # from CRAN
+#     @requires: htmltools      # from CRAN
+#     @requires: jsonlite       # from CRAN
+#     @requires: optparse       # from CRAN
+#     @requires: plotly         # from CRAN
+#     @requires: plyr           # from CRAN
+#     @requires: pROC           # from CRAN
+#     @requires: purrr          # from CRAN
+#     @requires: rmarkdown      # from CRAN
+#     @requires: reshape        # from CRAN
+#     @requires: readr          # from CRAN
+#     @requires: randomForest   # from CRAN
+#     @requires: scales         # from CRAN
+#     @requires: stringi        # from CRAN
+#     @requires: stringr        # from CRAN
+#     @requires: tibble         # from CRAN
+#     @requires: tidyr          # from CRAN
 #  -+ python>3.7                # apt-get, installs: 3.10.12
 #     @requires: bx-python      # pip install from pypi
 #     @requires: biopython      # pip install from pypi
@@ -62,7 +62,7 @@ FROM ubuntu:22.04
 LABEL maintainer="Skyler Kuhn <kuhnsa@nih.gov>" \
     base_image="ubuntu:22.04" \
     version="v0.1.0"   \
-    software="sqanti3/v5.1.2" \
+    software="sqanti3/v5.2.0" \
     about.summary="SQANTI3: Tool for the Quality Control of Long-Read Defined Transcriptomes" \
     about.home="https://github.com/ConesaLab/SQANTI3" \
     about.documentation="https://github.com/ConesaLab/SQANTI3/wiki/" \
@@ -115,8 +115,10 @@ RUN apt-get update \
         # python/3.10.6
         python3 \
         python3-pip \
-        # R/4.1.2-1
-        r-base \
+        # Requirements for installing latest R version:
+        # https://cran.r-project.org/bin/linux/ubuntu/ 
+        software-properties-common \
+        dirmngr \
         # STAR/2.7.10a
         rna-star \
         # samtools/1.13-4
@@ -133,8 +135,19 @@ RUN localedef -i en_US -f UTF-8 en_US.UTF-8
 # Perl fix issue
 RUN cpanm FindBin Term::ReadLine
 
+
 ############### MANUAL ################
-# Install tools from src manually,
+# Installs R (4.3.X) and required packages
+# For more information, check out: 
+# https://cran.r-project.org/bin/linux/ubuntu/
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E298A3A825C0D65DFD57CBB651716619E084DAB9 \
+    && add-apt-repository "deb https://cloud.r-project.org/bin/linux/ubuntu $(lsb_release -cs)-cran40/" \
+    && apt-get -y install r-base r-base-dev r-recommended r-base-dev \
+    && apt-get -y install libboost-dev \
+    # Update apt-get R package index 
+    && add-apt-repository ppa:c2d4u.team/c2d4u4.0+
+
+# Build tools from src manually,
 # Installs deSALT/1.5.6 from GitHub:
 # https://github.com/ydLiu-HIT/deSALT/releases/tag/v1.5.6
 # This tool was created using an older
@@ -174,7 +187,53 @@ WORKDIR /opt2
 
 ############### INSTALL ################
 # Install any bioinformatics packages
-# available with pypi or CRAN/BioC
+# available with pypi or CRAN/BioC.
+# Install required CRAN R packages via apt-get
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+        # CRAN R packages
+        r-cran-caret \
+        r-cran-dplyr \
+        r-cran-dt \
+        r-cran-devtools \
+        r-cran-e1071 \
+        r-cran-forcats \
+        r-cran-ggplot2 \
+        r-cran-gridbase \
+        r-cran-gridextra \
+        r-cran-htmltools \
+        r-cran-jsonlite \
+        r-cran-optparse \
+        r-cran-plotly \
+        r-cran-plyr \
+        r-cran-proc \
+        r-cran-purrr \
+        r-cran-rmarkdown \
+        r-cran-reshape \
+        r-cran-readr \
+        r-cran-randomforest \
+        r-cran-scales \
+        r-cran-stringi \
+        r-cran-stringr \
+        r-cran-tibble \
+        r-cran-tidyr \
+    && apt-get clean && apt-get purge \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install remaining R packages manually,
+# missing from apt-get sources list:
+#  - r-cran-biocmanager
+#  - r-cran-ggplotify
+#  - r-cran-rcolorconesa
+#  - r-bioc-busparse
+#  - r-bioc-noiseq
+# Remaining CRAN packages 
+RUN Rscript -e 'install.packages(c("BiocManager","ggplotify", "RColorConesa"), repos="http://cran.r-project.org")'
+# Remaining Bioconductor packages
+RUN Rscript -e 'BiocManager::install(c("BUSpaRse", "NOISeq"), update = FALSE, Ncpus = 4)' 
+
+# Installs required python packages
 RUN ln -sf /usr/bin/python3 /usr/bin/python
 RUN pip3 install --upgrade pip \
     && pip3 install Cython \
@@ -224,70 +283,22 @@ ENV PATH="${PATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
 ENV PYTHONPATH="${PYTHONPATH}:/opt2/cdna_cupcake/28.0.0/cDNA_Cupcake-28.0.0/sequence"
 WORKDIR /opt2
 
-# Install R packages via apt 
-RUN apt-get update \
-    && apt-get -y upgrade \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-        # CRAN R packages
-        r-cran-biocmanager \
-        r-cran-caret \
-        r-cran-dplyr \
-        r-cran-dt \
-        r-cran-devtools \
-        r-cran-e1071 \
-        r-cran-forcats \
-        r-cran-ggplot2 \
-        r-cran-gridbase \
-        r-cran-gridextra \
-        r-cran-htmltools \
-        r-cran-jsonlite \
-        r-cran-optparse \
-        r-cran-plotly \
-        r-cran-plyr \
-        r-cran-proc \
-        r-cran-purrr \
-        r-cran-rmarkdown \
-        r-cran-reshape \
-        r-cran-readr \
-        r-cran-randomforest \
-        r-cran-scales \
-        r-cran-stringi \
-        r-cran-stringr \
-        r-cran-tibble \
-        r-cran-tidyr \
-        # Bioconductor
-        r-bioc-noiseq \
-    && apt-get clean && apt-get purge \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# Install R packages manually,
-# missing from apt: 
-#  - r-bioc-busparse
-#  - r-cran-ggplotify
-# CRAN packages 
-RUN Rscript -e 'install.packages(c("ggplotify"), repos="http://cran.r-project.org")'
-# Bioconductor packages
-RUN Rscript -e 'BiocManager::install(c("BUSpaRse"), update = FALSE, Ncpus = 4)' 
-# Install missing packages, 
-# not listed in sqanti docs,
-# noticed when running ML filter
-RUN Rscript -e 'install.packages(c("RColorConesa"), repos="http://cran.r-project.org")'
-
-########### SQANTI3/v5.1.2 ############
-# Installs SQANTI3/v5.1.2, dependencies
+########### SQANTI3/v5.2.0 ############
+# Installs SQANTI3/v5.2.0, dependencies
 # and requirements have already been
 # satisfied, for more info see:
 # https://github.com/ConesaLab/SQANTI3
-RUN mkdir -p /opt2/sqanti3/5.1.2/ \
-    && wget https://github.com/ConesaLab/SQANTI3/archive/refs/tags/v5.1.2.tar.gz -O /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
-    && tar -zvxf /opt2/sqanti3/5.1.2/v5.1.2.tar.gz -C /opt2/sqanti3/5.1.2/ \
-    && rm -f /opt2/sqanti3/5.1.2/v5.1.2.tar.gz \
+RUN mkdir -p /opt2/sqanti3/5.2.0/ \
+    && wget https://github.com/ConesaLab/SQANTI3/archive/refs/tags/v5.2.tar.gz -O /opt2/sqanti3/5.2.0/v5.2.tar.gz \
+    && tar -zvxf /opt2/sqanti3/5.2.0/v5.2.tar.gz -C /opt2/sqanti3/5.2.0/ \
+    && rm -f /opt2/sqanti3/5.2.0/v5.2.tar.gz \
     # Removing exec bit for non-exec files
     && chmod -x \
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/LICENSE \
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/.gitignore \
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.md \ 
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/*.yml \
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/LICENSE \
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/.gitignore \
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/*.md \ 
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/*.yml \
     # Patch: adding absolute PATH to howToUse.png
     # that gets embedded in the report. When running
     # sqanti_qc.py within docker/singularity container,
@@ -296,18 +307,18 @@ RUN mkdir -p /opt2/sqanti3/5.1.2/ \
     # path). Converting relative path in Rmd files to
     # an absolute path to avoid this issue altogether.
     && sed -i \
-        's@src="howToUse.png"@src="/opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_qc/howToUse.png"@g' \
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_qc/SQANTI3_report.Rmd \
-        /opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities/report_pigeon/pigeon_report.Rmd
+        's@src="howToUse.png"@src="/opt2/sqanti3/5.2.0/SQANTI3-5.2/utilities/report_qc/howToUse.png"@g' \
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/utilities/report_qc/SQANTI3_report.Rmd \
+        /opt2/sqanti3/5.2.0/SQANTI3-5.2/utilities/report_pigeon/pigeon_report.Rmd
 
-ENV PATH="${PATH}:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2:/opt2/sqanti3/5.1.2/SQANTI3-5.1.2/utilities"
+ENV PATH="${PATH}:/opt2/sqanti3/5.2.0/SQANTI3-5.2:/opt2/sqanti3/5.2.0/SQANTI3-5.2/utilities"
 WORKDIR /opt2
 
 
 ################ POST #################
 # Add Dockerfile and export environment 
 # variables and update permissions
-ADD Dockerfile /opt2/sqanti3_5-1-2.dockerfile
+ADD Dockerfile /opt2/sqanti3_5-2-0.dockerfile
 RUN chmod -R a+rX /opt2
 ENV PATH="/opt2:$PATH"
 # Hide deprecation warnings from sqanit
