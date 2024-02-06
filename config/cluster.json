@@ -8,11 +8,13 @@
     },
     "fastqc_raw": {
         "threads": "8",
-        "mem": "16g"
+        "mem": "16g",
+        "gres": "lscratch:64"
     },
     "fastqc_filtered": {
         "threads": "8",
-        "mem": "16g"
+        "mem": "16g",
+        "gres": "lscratch:64"
     },
     "minimap2_genome": {
         "threads": "4",

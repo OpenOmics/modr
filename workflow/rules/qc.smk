@@ -83,14 +83,34 @@ rule fastqc_raw:
     params:
         rname  = "rawfqc", 
         outdir = join(workpath, "{name}", "fastqc"),
+        tmpdir = tmpdir,
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "fastqc_raw", cluster))
     shell: """
+    # Setups temporary directory for
+    # intermediate files with built-in 
+    # mechanism for deletion on exit
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    trap 'rm -rf "${{tmp}}"' EXIT
+
+    # Running fastqc with local
+    # disk or a tmpdir, fastqc
+    # has been observed to lock
+    # up gpfs filesystems, adding
+    # this on request by HPC staff
     fastqc \\
         -t {threads} \\
-        -o {params.outdir} \\
+        -o "${{tmp}}" \\
         {input.fq}
+    
+    # Copy output files from tmpdir
+    # to output directory
+    find "${{tmp}}" \\
+        -type f \\
+        \\( -name '*.html' -o -name '*.zip' \\) \\
+        -exec cp {{}} {params.outdir} \\; 
     """
 
 
@@ -110,14 +130,34 @@ rule fastqc_filtered:
     params:
         rname  = "filtfqc", 
         outdir = join(workpath, "{name}", "fastqc"),
+        tmpdir = tmpdir,
     conda: depending(join(workpath, config['conda']['modr']), use_conda)
     container: depending(config['images']['modr'], use_singularity)
     threads: int(allocated("threads", "fastqc_filtered", cluster))
     shell: """
+    # Setups temporary directory for
+    # intermediate files with built-in 
+    # mechanism for deletion on exit
+    if [ ! -d "{params.tmpdir}" ]; then mkdir -p "{params.tmpdir}"; fi
+    tmp=$(mktemp -d -p "{params.tmpdir}")
+    trap 'rm -rf "${{tmp}}"' EXIT
+
+    # Running fastqc with local
+    # disk or a tmpdir, fastqc
+    # has been observed to lock
+    # up gpfs filesystems, adding
+    # this on request by HPC staff
     fastqc \\
         -t {threads} \\
-        -o {params.outdir} \\
+        -o "${{tmp}}" \\
         {input.fq}
+
+    # Copy output files from tmpdir
+    # to output directory
+    find "${{tmp}}" \\
+        -type f \\
+        \\( -name '*.html' -o -name '*.zip' \\) \\
+        -exec cp {{}} {params.outdir} \\; 
     """
 
 
